@@ -21,12 +21,14 @@ async function getTopTracks() {
 
 async function main() {
   const topTracks = await getTopTracks();
-  console.log(
-    topTracks?.map(
-      ({ name, artists }) =>
-        `${name} by ${artists.map(artist => artist.name).join(', ')}`
-    )
+  const trackList = topTracks?.map(
+    ({ name, artists }) =>
+      `${name} by ${artists.map(artist => artist.name).join(', ')}`
   );
+
+  // Send the track list to the HTML page
+  const trackListElement = document.getElementById('track-list');
+  trackListElement.innerHTML = trackList.map(track => `<li>${track}</li>`).join('');
 }
 
 main().catch(console.error);
