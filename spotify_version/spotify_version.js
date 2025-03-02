@@ -22,13 +22,16 @@ async function getTopTracks() {
 async function main() {
   const topTracks = await getTopTracks();
   const trackList = topTracks?.map(
-    ({ name, artists }) =>
-      `${name} by ${artists.map(artist => artist.name).join(', ')}`
+    ({ name, artists, album }) =>
+      `<li>
+        <img src="${album.images[0].url}" alt="${name} album cover" width="50" height="50">
+        ${name} by ${artists.map(artist => artist.name).join(', ')}
+      </li>`
   );
 
   // Send the track list to the HTML page
   const trackListElement = document.getElementById('track-list');
-  trackListElement.innerHTML = trackList.map(track => `<li>${track}</li>`).join('');
+  trackListElement.innerHTML = trackList.join('');
 }
 
 main().catch(console.error);
