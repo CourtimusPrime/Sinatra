@@ -1,3 +1,10 @@
+async function getSpotifyUser(token) {
+    const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await response.json();
+}
+
 async function getTopTracks(token) {
     const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -14,15 +21,29 @@ async function displayTracks() {
         return;
     }
 
-    const topTracks = await getTopTracks(accessToken);
-    const trackList = topTracks.map(({ name, artists, album }) =>
-        `<li>
-            <img src="${album.images[0].url}" alt="${name} album cover" width="50">
-            ${name} by ${artists.map(a => a.name).join(', ')}
-        </li>`
-    ).join('');
+    // Fetch user info
+    const user = await getSpotifyUser(accessToken);
+    const username = user.display_name || "Spotify User"; // Fallback if no name is available
 
-    document.getElementById('track-list').innerHTML = trackList;
+    // Find the header element
+    const pageTitle = document.getElementById('page-title');
+    if (pageTitle) {
+        pageTitle.innerText = `${username}'s Top Tracks This Month`;
+    } else {
+        console.error("Element with ID 'page-title' not found.");
+    }
+
+    // Fetch top tracks
+    const topTracks = await getTopTracks(accessToken);
+    const trackContainer = document.getElementById('track-container');
+
+    trackContainer.innerHTML = topTracks.map(({ name, artists, album }) => `
+        <div class="track">
+            <img src="${album.images[0].url}" alt="${name} album cover" class="album-cover">
+            <p class="song-title">${name}</p>
+            <p class="artist-name">${artists.map(a => a.name).join(', ')}</p>
+        </div>
+    `).join('');
 }
 
 window.onload = displayTracks;
