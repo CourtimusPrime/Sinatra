@@ -1,5 +1,5 @@
 async function getTopTracks(token) {
-    const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=10', {
+    const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5', {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     return (await response.json()).items;
