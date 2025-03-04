@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Top Tracks</title>
+    <title>Your Top Tracks This Month</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <h1>Spotify Top Tracks</h1>
-    <ul id="track-list">
-        <!-- Tracks will be listed here -->
-    </ul>
+    <div id="profile">
+        <img id="profile-pic" src="" alt="Profile Picture">
+        <h2 id="username"></h2> <!-- Display the user's Spotify name -->
+    </div>
+    <h1>Your Top Tracks This Month</h1>
+    <div id="track-container"></div>
     <script src="/spotify.js"></script>
 </body>
 </html>

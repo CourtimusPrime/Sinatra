@@ -1,4 +1,117 @@
-/* Example CSS file */
+/* Ensure full-page center alignment */
 body {
     font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #1DB954, #191414); /* Spotify Green to Black */
+    background-attachment: fixed;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Center the header */
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    margin-top: 20px;
+}
+
+/* Grid container for the tracks */
+#track-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Dynamic grid */
+    gap: 20px;
+    width: 90%;
+    max-width: 1200px;
+    padding: 20px;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* Track cards styling */
+.track {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Aligns items from the top */
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 180px; /* Fixed width for consistency */
+    min-height: 250px;
+}
+
+/* Track ranking numbers */
+.track-rank {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 5px; /* Adds spacing between rank and album cover */
+}
+
+/* Album covers */
+.album-cover {
+    width: 100%;
+    max-width: 150px; /* Ensures uniform sizing */
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Song title */
+.song-title {
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Artist name */
+.artist-name {
+    font-size: 0.9em;
+    color: #b3b3b3;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+#profile {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #track-container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .track {
+        width: 150px;
+    }
+
+    .album-cover {
+        max-width: 130px;
+        height: 130px;
+    }
 }

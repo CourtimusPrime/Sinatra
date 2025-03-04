@@ -1,3 +1,10 @@
+async function getSpotifyUser(token) {
+    const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await response.json();
+}
+
 async function getTopTracks(token) {
     const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -14,15 +21,33 @@ async function displayTracks() {
         return;
     }
 
-    const topTracks = await getTopTracks(accessToken);
-    const trackList = topTracks.map(({ name, artists, album }) =>
-        `<li>
-            <img src="${album.images[0].url}" alt="${name} album cover" width="50">
-            ${name} by ${artists.map(a => a.name).join(', ')}
-        </li>`
-    ).join('');
+    // Fetch user info
+    const user = await getSpotifyUser(accessToken);
+    const username = user.display_name || "Spotify User"; // Fallback if no name is available
+    const profilePic = user.images?.[0]?.url; // Get profile picture URL
 
-    document.getElementById('track-list').innerHTML = trackList;
+    // Update the page title dynamically
+    document.querySelector("h1").innerText = `${username}'s Top Tracks This Month`;
+
+    // Display profile picture if available
+    if (profilePic) {
+        const profileContainer = document.getElementById("profile");
+        profileContainer.innerHTML = `<img id="profile-pic" src="${profilePic}" alt="Profile Picture">`;
+    }
+
+    // Fetch top tracks
+    const topTracks = await getTopTracks(accessToken);
+    const trackContainer = document.getElementById('track-container');
+
+    // Display tracks with ranking numbers
+    trackContainer.innerHTML = topTracks.map(({ name, artists, album }, index) => `
+        <div class="track">
+            <div class="track-rank">#${index + 1}</div>
+            <img src="${album.images[0].url}" alt="${name} album cover" class="album-cover">
+            <p class="song-title">${name}</p>
+            <p class="artist-name">${artists.map(a => a.name).join(', ')}</p>
+        </div>
+    `).join('');
 }
 
 window.onload = displayTracks;
