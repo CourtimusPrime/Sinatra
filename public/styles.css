@@ -2,7 +2,8 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background: linear-gradient(135deg, #1DB954, #191414); /* Spotify Green to Black */
+    background: rgb(63,94,251);
+    background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
     background-attachment: fixed;
     color: white;
     margin: 0;
