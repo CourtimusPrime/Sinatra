@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 
 # Load CSV file
-df = pd.read_csv("/Users/courtashdale/Desktop/Sinatra/Sinatra-9/music-data/genres/genres_sheet.csv")
+df = pd.read_csv("/Users/courtashdale/Desktop/Sinatra/Sinatra-9/music-data/genres/genres_sheet_2.csv")
 
 # Convert IDs to string
 df["id"] = df["id"].astype(str)
