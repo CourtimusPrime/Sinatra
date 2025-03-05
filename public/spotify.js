@@ -24,16 +24,13 @@ async function displayTracks() {
     // Fetch user info
     const user = await getSpotifyUser(accessToken);
     const username = user.display_name || "Spotify User"; // Fallback if no name is available
-    const profilePic = user.images?.[0]?.url; // Get profile picture URL
+    const profilePic = user.images[0]?.url; // Get profile picture URL
 
     // Update the page title dynamically
     document.querySelector("h1").innerText = `${username}'s Top Tracks This Month`;
 
-    // Display profile picture if available
-    if (profilePic) {
-        const profileContainer = document.getElementById("profile");
-        profileContainer.innerHTML = `<img id="profile-pic" src="${profilePic}" alt="Profile Picture">`;
-    }
+    // Display profile picture or default pic
+    document.getElementById("profile-pic").setAttribute("src", profilePic ?? "https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193")
 
     // Fetch top tracks
     const topTracks = await getTopTracks(accessToken);
