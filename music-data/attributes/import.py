@@ -14,5 +14,4 @@ warnings.filterwarnings('ignore')
 pd.set_option('display.max_columns',None)
 init_notebook_mode(connected=True)
 
-import pandas as pd
-print(pd.__version__)
+df = pd.read_csv('/Kaggle/input/top-hits-spotify-from-200802019/songs_normalize.csv')
