@@ -89,6 +89,30 @@ h1 {
     width: 100%;
 }
 
+#search-bar {
+    min-width: 600px;
+    max-width: 900px;
+    height: 100%;
+    border: none;
+    background: none;
+    font-size: 1.6em;
+    color: #b3b3b3;
+}
+
+#search-bar:focus {
+    outline: none;
+    border: none;
+}
+
+.search-container {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 24px;
+    width: fit-content;
+    height: fit-content;
+}
+
 #profile {
     text-align: center;
     margin-top: 20px;
