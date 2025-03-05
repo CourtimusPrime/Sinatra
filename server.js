@@ -19,6 +19,30 @@ const REDIRECT_URI = 'http://localhost:3000/callback';
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
+let userStore = [
+    {name: "amborn02", token: "", refresh_token: "", expire_moment: ""}
+]
+
+function updateUserToken(username, tokenResponse) {
+    let current_record = userStore.find((op) => op.name = username)
+
+    if (current_record) {
+        current_record.token = tokenResponse.access_token
+        current_record.refresh_token = tokenResponse.refresh_token
+        current_record.expire_moment = new Date().getTime() + tokenResponse.expires_in * 1000
+    }
+    else {
+        userStore.push({
+            name: username,
+            token: tokenResponse.access_token,
+            refresh_token: tokenResponse.refresh_token,
+            expire_moment: new Date().getTime() + tokenResponse.expires_in * 1000
+        })
+    }
+
+    console.log(userStore)
+}
+
 app.get('/login', (req, res) => {
     const scope = 'user-top-read';
     const authURL = `${SPOTIFY_AUTH_URL}?${querystring.stringify({
@@ -44,6 +68,12 @@ app.get('/callback', async (req, res) => {
             }),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
+
+        const user = await axios.get('https://api.spotify.com/v1/me', {
+            headers: { 'Authorization': `Bearer ${response.data.access_token}` }
+        });
+
+        updateUserToken(user.data.display_name, response.data)
 
         res.redirect(`/index.html?access_token=${response.data.access_token}`);
     } catch (error) {
