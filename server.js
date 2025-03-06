@@ -4,6 +4,7 @@ const axios = require('axios');
 const querystring = require('querystring');
 const cors = require('cors');
 const path = require('path');
+const mongodb = require('mongodb');
 
 const app = express();
 app.use(cors());
@@ -19,20 +20,30 @@ const REDIRECT_URI = 'http://localhost:3000/callback';
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
-let userStore = [
-    {name: "amborn02", token: "", refresh_token: "", expire_moment: ""}
-]
+const client = new mongodb.MongoClient(process.env.MONGODB_URI, {
+    serverApi: {
+        version: mongodb.ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
 
-function updateUserToken(username, tokenResponse) {
-    let current_record = userStore.find((op) => op.name = username)
+const db = client.db("sinatra");
+
+async function updateUserToken(username, tokenResponse) {
+    let current_record = await getUserRecord(username)
 
     if (current_record) {
-        current_record.token = tokenResponse.access_token
-        current_record.refresh_token = tokenResponse.refresh_token
-        current_record.expire_moment = new Date().getTime() + tokenResponse.expires_in * 1000
+        await db.collection("user").updateOne({ name: username }, {
+            $set: {
+                token: tokenResponse.access_token,
+                refresh_token: tokenResponse.refresh_token,
+                expire_moment: new Date().getTime() + tokenResponse.expires_in * 1000
+            }
+        })
     }
     else {
-        userStore.push({
+        await db.collection("user").insertOne({
             name: username,
             token: tokenResponse.access_token,
             refresh_token: tokenResponse.refresh_token,
@@ -41,14 +52,41 @@ function updateUserToken(username, tokenResponse) {
     }
 }
 
+async function refreshUserToken(user) {
+    const user_record = await getUserRecord(user)
+
+    console.log(user_record.refresh_token)
+    const response = await axios.post(
+        TOKEN_URL,
+        querystring.stringify({
+            grant_type: 'refresh_token',
+            refresh_token: user_record.refresh_token,
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    )
+
+    await updateUserToken(user, response.data)
+}
+
 async function requestWithUser(user, endpoint) {
-    let current_record = userStore.find((op) => op.name = user)
+    let current_record = await getUserRecord(user)
+
+    // if (current_record.expire_moment > new Date().getTime()) {
+    //     await refreshUserToken(user)
+    // }
+
     if (current_record) {
         const response = await axios.get(endpoint, {
             headers: { 'Authorization': `Bearer ${current_record.token}` }
         });
         return response.data;
     }
+}
+
+async function getUserRecord(user) {
+    return await db.collection("user").findOne({ name: user })
 }
 
 app.get('/login', (req, res) => {
@@ -81,7 +119,7 @@ app.get('/callback', async (req, res) => {
             headers: { 'Authorization': `Bearer ${response.data.access_token}` }
         });
 
-        updateUserToken(user.data.display_name, response.data)
+        await updateUserToken(user.data.display_name, response.data)
 
         res.redirect(`/${user.data.display_name}`);
     } catch (error) {
@@ -113,6 +151,16 @@ app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(3000, () => {
+app.listen(3000, async () => {
     console.log('Server running on http://localhost:3000');
+    try {
+        // Connect the client to the server
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
+        console.log(
+            "Pinged your deployment. You successfully connected to MongoDB!"
+        );
+    } catch (err) {
+        console.error(err);
+    }
 });
