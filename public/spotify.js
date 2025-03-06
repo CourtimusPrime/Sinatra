@@ -15,8 +15,6 @@ async function displayTracks() {
 
     const userPathString = urlSplit[urlSplit.length - 1]
 
-    console.log(userPathString)
-
     if (!userPathString) {
         document.body.innerHTML = `<a href="http://localhost:3000/login">Login with Spotify</a>`;
         return;
