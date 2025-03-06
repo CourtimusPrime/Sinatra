@@ -39,8 +39,16 @@ function updateUserToken(username, tokenResponse) {
             expire_moment: new Date().getTime() + tokenResponse.expires_in * 1000
         })
     }
+}
 
-    console.log(userStore)
+async function requestWithUser(user, endpoint) {
+    let current_record = userStore.find((op) => op.name = user)
+    if (current_record) {
+        const response = await axios.get(endpoint, {
+            headers: { 'Authorization': `Bearer ${current_record.token}` }
+        });
+        return response.data;
+    }
 }
 
 app.get('/login', (req, res) => {
@@ -75,13 +83,33 @@ app.get('/callback', async (req, res) => {
 
         updateUserToken(user.data.display_name, response.data)
 
-        res.redirect(`/index.html?access_token=${response.data.access_token}`);
+        res.redirect(`/${user.data.display_name}`);
     } catch (error) {
         res.send('Error fetching access token.');
     }
 });
 
-app.get('/', (req, res) => {
+app.get('/user', async (req, res) => {
+    const userData = await requestWithUser(req.query.username, 'https://api.spotify.com/v1/me')
+    if (userData) {
+        res.send(userData)
+    }
+    else {
+        res.send("Invalid User")
+    }
+})
+
+app.get('/toptracks', async (req, res) => {
+    const tracks = await requestWithUser(req.query.username, 'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5')
+    if (tracks) {
+        res.send(tracks.items)
+    }
+    else {
+        res.send("Invalid User")
+    }
+})
+
+app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
