@@ -73,9 +73,10 @@ async function refreshUserToken(user) {
 async function requestWithUser(user, endpoint) {
     let current_record = await getUserRecord(user)
 
-    // if (current_record.expire_moment > new Date().getTime()) {
-    //     await refreshUserToken(user)
-    // }
+    if (current_record.expire_moment < new Date().getTime()) {
+        await refreshUserToken(user)
+        current_record = await getUserRecord(user)
+    }
 
     if (current_record) {
         const response = await axios.get(endpoint, {
