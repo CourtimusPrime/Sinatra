@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Top Tracks This Month</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Spotify User's Top Genres</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="profile">
-        <img id="profile-pic" src="" alt="Profile Picture">
-        <h2 id="username"></h2> <!-- Display the user's Spotify name -->
-    </div>
-    <h1>Your Top Tracks This Month</h1>
-    <div id="track-container"></div>
-    <div class="search-container">
-        <input id="search-bar" placeholder="Search..."></div>
-    </div>
-    <script src="/spotify.js"></script>
+    <header>
+        <h1 id="page-title">User's Top Genres (Short Term)</h1>
+    </header>
+
+    <section id="profile">
+        <img id="profile-pic" src="https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193" alt="Profile Picture">
+        <h2 id="username">Spotify User</h2>
+    </section>
+
+    <section id="genres">
+        <h2>Top Genres</h2>
+        <div id="genre-container">
+            <p>Loading...</p>
+        </div>
+    </section>
+
+    <script src="spotify.js"></script>
 </body>
 </html>

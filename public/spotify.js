@@ -8,6 +8,25 @@ async function getTopTracks(uname) {
     return await response.json();
 }
 
+async function displayGenres() {
+    const urlSplit = window.location.href.split('/');
+    const userPathString = urlSplit[urlSplit.length - 1];
+
+    if (!userPathString) {
+        document.body.innerHTML = `<a href="http://localhost:3000/login">Login with Spotify</a>`;
+        return;
+    }
+
+    const genreContainer = document.getElementById("genre-container");
+    genreContainer.innerHTML = "<p>Loading genres...</p>";
+
+    // Fetch genres but don't display them
+    const genres = await getTopHundredGenres(userPathString);
+
+    genreContainer.innerHTML = "<p>Genres fetched, but not displayed.</p>";
+    console.log("Fetched genres:", genres);
+}
+
 async function displayTracks() {
     //const params = new URLSearchParams(window.location.search);
     const urlSplit = window.location.href.split('/')
