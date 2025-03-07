@@ -1,4 +1,4 @@
-async function getTopHundredGenres(uname) {
+async function updateGenreCounts(csvFilePath) {
     // Fetch top 100 tracks
     const response = await fetch(`http://localhost:3000/me/top/tracks?time_range=short_term&limit=100`);
     const topTracks = await response.json();
@@ -15,28 +15,23 @@ async function getTopHundredGenres(uname) {
     const artistResponse = await fetch(`http://localhost:3000/artists?ids=${artistIdArray.join(',')}`);
     const artistData = await artistResponse.json();
 
-    // Extract genres from the artist data
-    const genres = new Set();
+    // Count genres in the top 100 tracks
+    const genreCounts = {};
     artistData.artists.forEach(artist => {
-        artist.genres.forEach(genre => genres.add(genre));
+        artist.genres.forEach(genre => {
+            genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+        });
     });
 
-    return Array.from(genres); // Return unique genres
+    // Send genreCounts to Python for updating CSV and visualization
+    await fetch('/update_csv_and_visualize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(genreCounts)
+    });
 }
 
-// Example usage:
-async function displayGenres() {
-    const urlSplit = window.location.href.split('/');
-    const userPathString = urlSplit[urlSplit.length - 1];
-
-    if (!userPathString) {
-        document.body.innerHTML = `<a href="http://localhost:3000/login">Login with Spotify</a>`;
-        return;
-    }
-
-    // Fetch and display genres
-    const genres = await getTopHundredGenres(userPathString);
-    document.getElementById("genre-container").innerHTML = genres.map(genre => `<p>${genre}</p>`).join('');
-}
-
-window.onload = displayGenres;
+// Trigger function when page loads (or manually call updateGenreCounts)
+updateGenreCounts("genres_mar6_noval.csv");
