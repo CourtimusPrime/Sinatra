@@ -8,6 +8,20 @@ async function getTopTracks(uname) {
     return await response.json();
 }
 
+async function getTopGenres(uname) {
+    const response = await fetch(`http://localhost:3000/toptracks?username=${uname}&time_range=short_term&limit=100`);
+    const topTracks = await response.json();
+
+    const genres = new Set();
+    for (const track of topTracks) {
+        const trackResponse = await fetch(`http://localhost:3000/track?track_id=${track.id}`);
+        const trackData = await trackResponse.json();
+        trackData.genres.forEach(genre => genres.add(genre));
+    }
+
+    return Array.from(genres);
+}
+
 async function displayTracks() {
     //const params = new URLSearchParams(window.location.search);
     const urlSplit = window.location.href.split('/')
@@ -47,4 +61,18 @@ async function displayTracks() {
     }
 }
 
-window.onload = displayTracks;
+async function displayGenres() {
+    const urlSplit = window.location.href.split('/');
+    const userPathString = urlSplit[urlSplit.length - 1];
+
+    if (userPathString) {
+        const genres = await getTopGenres(userPathString);
+        const genreList = document.getElementById('genre-list');
+        genreList.innerHTML = genres.map(genre => `<li>${genre}</li>`).join('');
+    }
+}
+
+window.onload = () => {
+    displayTracks();
+    displayGenres();
+};
