@@ -20,7 +20,8 @@ app.use((req, res, next) => {
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = 'https://sinatra-453804.ue.r.appspot.com/callback';
+
+const REDIRECT_URI = `${process.env.PROD_URL}:${process.env.PORT}/callback`;
 
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
@@ -153,7 +154,7 @@ app.get('/*', (req, res) => {
 
 // 🔹 Start Server & Connect to MongoDB
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = process.env.PROD_URL || '0.0.0.0';
 
 app.listen(PORT, HOST, async () => {
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);

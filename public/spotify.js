@@ -1,8 +1,6 @@
-const base_url = 'https://sinatra-453804.ue.r.appspot.com';
-
 async function getSpotifyUser(uname) {
     try {
-        const response = await fetch(`${base_url}/user?username=${uname}`);
+        const response = await fetch(`${process.env.PROD_URL}/user?username=${uname}`);
         if (!response.ok) throw new Error("Failed to fetch user data");
         return await response.json();
     } catch (error) {
@@ -13,7 +11,7 @@ async function getSpotifyUser(uname) {
 
 async function getTopTracks(uname) {
     try {
-        const response = await fetch(`${base_url}/toptracks?username=${uname}`);
+        const response = await fetch(`${process.env.PROD_URL}/toptracks?username=${uname}`);
         if (!response.ok) throw new Error("Failed to fetch top tracks");
         return await response.json();
     } catch (error) {
