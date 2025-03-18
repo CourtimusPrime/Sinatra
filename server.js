@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = 'http://localhost:3000/callback';
+const REDIRECT_URI = `${process.env.PROD_URL}:${process.env.PORT}/callback`;
 
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
@@ -55,7 +55,6 @@ async function updateUserToken(username, tokenResponse) {
 async function refreshUserToken(user) {
     const user_record = await getUserRecord(user)
 
-    console.log(user_record.refresh_token)
     const response = await axios.post(
         TOKEN_URL,
         querystring.stringify({
@@ -152,8 +151,8 @@ app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(3000, async () => {
-    console.log('Server running on http://localhost:3000');
+app.listen(process.env.PORT || 8000, async () => {
+    console.log('Server running on http://localhost:' + process.env.PORT);
     try {
         // Connect the client to the server
         // Send a ping to confirm a successful connection

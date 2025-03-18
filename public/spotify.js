@@ -1,10 +1,12 @@
+ const baseURL = `${process.env.PROD_URL}:${process.env.PORT}`
+
 async function getSpotifyUser(uname) {
-    const response = await fetch(`http://localhost:3000/user?username=${uname}`)
+    const response = await fetch(`${baseURL}/user?username=${uname}`)
     return await response.json();
 }
 
 async function getTopTracks(uname) {
-    const response = await fetch(`http://localhost:3000/toptracks?username=${uname}`)
+    const response = await fetch(`${baseURL}/toptracks?username=${uname}`)
     return await response.json();
 }
 
@@ -16,7 +18,7 @@ async function displayTracks() {
     const userPathString = urlSplit[urlSplit.length - 1]
 
     if (!userPathString) {
-        document.body.innerHTML = `<a href="http://localhost:3000/login">Login with Spotify</a>`;
+        document.body.innerHTML = `<a href="/login">Login with Spotify</a>`;
         return;
     }
     else {
