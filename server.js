@@ -154,7 +154,7 @@ app.get('/*', (req, res) => {
 
 // 🔹 Start Server & Connect to MongoDB
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.PROD_URL || '0.0.0.0';
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, async () => {
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
