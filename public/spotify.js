@@ -1,50 +1,68 @@
+const base_url = 'https://sinatra-453804.ue.r.appspot.com';
+
 async function getSpotifyUser(uname) {
-    const response = await fetch(`http://localhost:3000/user?username=${uname}`)
-    return await response.json();
+    try {
+        const response = await fetch(`${base_url}/user?username=${uname}`);
+        if (!response.ok) throw new Error("Failed to fetch user data");
+        return await response.json();
+    } catch (error) {
+        console.error("❌ Error fetching user data:", error);
+        return null;
+    }
 }
 
 async function getTopTracks(uname) {
-    const response = await fetch(`http://localhost:3000/toptracks?username=${uname}`)
-    return await response.json();
+    try {
+        const response = await fetch(`${base_url}/toptracks?username=${uname}`);
+        if (!response.ok) throw new Error("Failed to fetch top tracks");
+        return await response.json();
+    } catch (error) {
+        console.error("❌ Error fetching top tracks:", error);
+        return [];
+    }
 }
 
 async function displayTracks() {
-    //const params = new URLSearchParams(window.location.search);
-    const urlSplit = window.location.href.split('/')
-    //const accessToken = params.get('access_token');
-
-    const userPathString = urlSplit[urlSplit.length - 1]
+    const urlSplit = window.location.href.split('/');
+    const userPathString = urlSplit[urlSplit.length - 1] || null;
 
     if (!userPathString) {
-        document.body.innerHTML = `<a href="http://localhost:3000/login">Login with Spotify</a>`;
+        document.body.innerHTML = `<a href="${base_url}/login">Login with Spotify</a>`;
         return;
     }
-    else {
-        // Fetch user info
-        const user = await getSpotifyUser(userPathString);
-        const username = user.display_name || "Spotify User"; // Fallback if no name is available
-        const profilePic = user.images[0]?.url; // Get profile picture URL
 
-        // Update the page title dynamically
-        document.querySelector("h1").innerText = `${username}'s Top Tracks This Month`;
+    // Fetch user info
+    const user = await getSpotifyUser(userPathString);
 
-        // Display profile picture or default pic
-        document.getElementById("profile-pic").setAttribute("src", profilePic ?? "https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193")
+    if (!user) {
+        document.body.innerHTML = `<h2>User not found. <a href="${base_url}/login">Login with Spotify</a></h2>`;
+        return;
+    }
 
-        // Fetch top tracks
-        const topTracks = await getTopTracks(userPathString);
-        const trackContainer = document.getElementById('track-container');
+    const username = user?.display_name || "John Doe";
+    const profilePic = user?.images?.[0]?.url ?? "https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193";
 
-        // Display tracks with ranking numbers
-        trackContainer.innerHTML = topTracks.map(({ name, artists, album }, index) => `
+    // Update UI
+    document.querySelector("h1").innerText = `${username}'s Top Tracks This Month`;
+    document.getElementById("profile-pic").setAttribute("src", profilePic);
+
+    // Fetch top tracks
+    const topTracks = await getTopTracks(userPathString);
+    const trackContainer = document.getElementById('track-container');
+
+    if (topTracks.length === 0) {
+        trackContainer.innerHTML = `<p>No top tracks available.</p>`;
+        return;
+    }
+
+    trackContainer.innerHTML = topTracks.map(({ name, artists, album }, index) => `
         <div class="track">
             <div class="track-rank">#${index + 1}</div>
-            <img src="${album.images[0].url}" alt="${name} album cover" class="album-cover">
+            <img src="${album?.images?.[0]?.url ?? 'https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193'}" alt="${name} album cover" class="album-cover">
             <p class="song-title">${name}</p>
             <p class="artist-name">${artists.map(a => a.name).join(', ')}</p>
         </div>
     `).join('');
-    }
 }
 
 window.onload = displayTracks;
