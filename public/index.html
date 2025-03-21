@@ -3,33 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Top Tracks This Month</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Welcome to Sinatra</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Login Container -->
-    <div id="login-container">
-        <a id="login-link" href="/login">Login with Spotify</a>
+    <div class="login-container">
+        <div class="login-card">
+            <img class="logo" src="images/logo.png" alt="Sinatra Logo">
+            <h1>Welcome To Sinatra</h1>
+            <p>Your Link-in-Bio Music Profile to Share Your Top Tracks and Playlists</p>
+            <a class="spotify-login" href="home.html">
+                <img src="images/spotify-icon.png" alt="Spotify Logo"> Sign in with Spotify
+            </a>
+            <a class="login-link" href="home.html">Log in</a>
+        </div>
     </div>
-
-    <!-- Profile Section -->
-    <div id="profile" style="display: none;"> <!-- Hidden until user is fetched -->
-        <img id="profile-pic" src="https://wallpapers.com/images/hd/mr-bean-1600-x-1600-picture-sa8hx6eb7w4ne5k1.jpg" alt="Profile Picture">
-        <h2 id="username"></h2>
-    </div>
-
-    <!-- Title Section -->
-    <h1 id="page-title">Your Top Tracks This Month</h1>
-
-    <!-- Track List -->
-    <div id="track-container"></div>
-
-    <!-- Search Bar -->
-    <div class="search-container">
-        <input id="search-bar" placeholder="Search...">
-    </div>
-
-    <!-- JavaScript -->
-    <script src="/spotify.js"></script>
 </body>
 </html>
