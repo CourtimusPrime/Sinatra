@@ -10,8 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Force HTTPS in Google App Engine
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use((req, res, next) => {
+    if (req.headers.host.includes("localhost")) {
+        return next(); // Do not enforce HTTPS on localhost
+    }
     if (req.headers["x-forwarded-proto"] !== "https") {
         return res.redirect(`https://${req.headers.host}${req.url}`);
     }
@@ -21,12 +25,11 @@ app.use((req, res, next) => {
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
-const REDIRECT_URI = `${process.env.PROD_URL}:${process.env.PORT}/callback`;
+const REDIRECT_URI = process.env.NODE_ENV === "production" ? `${process.env.PROD_URL}/callback` : "http://localhost:3000/callback";
 
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
-// MongoDB Client
 const client = new mongodb.MongoClient(process.env.MONGODB_URI, {
     serverApi: {
         version: mongodb.ServerApiVersion.v1,
@@ -105,6 +108,28 @@ app.get('/callback', async (req, res) => {
     }
 });
 
+// 🔹 Function to Get User Record from MongoDB
+async function getUserRecord(username) {
+    try {
+        const userRecord = await db.collection("user").findOne({ name: username });
+        return userRecord;
+    } catch (error) {
+        console.error("❌ Error fetching user record:", error);
+        return null;
+    }
+}
+
+// 🔹 Function to Get User Record from MongoDB
+async function getUserRecord(username) {
+    try {
+        const userRecord = await db.collection("user").findOne({ name: username });
+        return userRecord;
+    } catch (error) {
+        console.error("❌ Error fetching user record:", error);
+        return null;
+    }
+}
+
 // 🔹 Function to Update or Insert User Token in MongoDB
 async function updateUserToken(username, tokenResponse) {
     try {
@@ -141,11 +166,66 @@ app.get('/user', async (req, res) => {
     userData ? res.send(userData) : res.status(404).send("Invalid User");
 });
 
+app.get("/user", async (req, res) => {
+    try {
+        const user = await getUserFromDB(req.query.username); // Example function
+        if (!user) return res.status(404).json({ error: "User not found" });
+        res.json(user);
+    } catch (error) {
+        console.error("❌ Error fetching user:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 // 🔹 Fetch User's Top Tracks
 app.get('/toptracks', async (req, res) => {
-    const tracks = await requestWithUser(req.query.username, 'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5');
-    tracks ? res.send(tracks.items) : res.status(404).send("Invalid User");
+    try {
+        console.log(`🔍 Fetching top tracks for user: ${req.query.username}`);
+        
+        const tracks = await requestWithUser(
+            req.query.username,
+            'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5'
+        );
+
+        if (!tracks || !tracks.items) {
+            console.error("❌ No top tracks found or invalid response format:", tracks);
+            return res.status(404).json({ error: "Invalid User or No Tracks Found" });
+        }
+
+        res.json(tracks.items);
+    } catch (error) {
+        console.error("❌ Error fetching top tracks:", error);
+        res.status(500).json({ error: "Internal server error", details: error.message });
+    }
 });
+
+async function requestWithUser(username, url) {
+    try {
+        console.log(`🔗 Making request to Spotify API for ${username}: ${url}`);
+
+        // Fetch user from MongoDB
+        const user = await getUserRecord(username);
+        if (!user || !user.token) {
+            console.error("❌ User not found or missing access token:", user);
+            return null;
+        }
+
+        // Make the request to Spotify API with the user's token
+        const response = await axios.get(url, {
+            headers: { Authorization: `Bearer ${user.token}` },
+        });
+
+        if (!response.data) {
+            console.error("❌ No data received from Spotify API");
+            return null;
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error in requestWithUser:", error);
+        return null;
+    }
+}
 
 // 🔹 Catch-All Route for Frontend SPA
 app.get('/*', (req, res) => {
@@ -154,7 +234,8 @@ app.get('/*', (req, res) => {
 
 // 🔹 Start Server & Connect to MongoDB
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+// Change HOST to 'localhost' to ensure it runs locally
+const HOST = 'localhost';
 
 app.listen(PORT, HOST, async () => {
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);

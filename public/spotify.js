@@ -1,4 +1,4 @@
-const base_url = `${process.env.PROD_URL}:${process.env.PORT}`
+const base_url = window.location.origin;
 
 async function getSpotifyUser(uname) {
     try {
@@ -15,7 +15,11 @@ async function getTopTracks(uname) {
     try {
         const response = await fetch(`${base_url}/toptracks?username=${uname}`);
         if (!response.ok) throw new Error("Failed to fetch top tracks");
-        return await response.json();
+        
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error("Invalid API response format");
+
+        return data;
     } catch (error) {
         console.error("❌ Error fetching top tracks:", error);
         return [];
