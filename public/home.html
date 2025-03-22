@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Spotify Profile</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+    <div id="user-profile">
+        <img id="user-pic" src="" alt="Profile Pic" />
+        <h1 id="username"></h1>
+     </div>
+  <h2>Your Top 3 Tracks This Month</h2>
+  <div id="top-tracks"></div>
+
+  <h2>Your Featured Playlists</h2>
+  <div id="featured-playlists"></div>
+  <button id="edit-playlists-btn">Edit Featured Playlists</button>
+
+<!-- Modal -->
+<div id="edit-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span id="close-modal" class="close">&times;</span>
+    <h2>Select 3 Playlists to Feature</h2>
+    <div id="modal-playlist-list"></div>
+    <button id="save-featured-btn" disabled>Save</button>
+  </div>
+</div>
+  <script src="/home.js"></script>
+</body>
+</html>

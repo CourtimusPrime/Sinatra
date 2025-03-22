@@ -68,6 +68,9 @@ app.get('/login', (req, res) => {
     res.redirect(authURL);
 });
 
+// after login:
+localStorage.setItem("username", user.data.display_name);
+
 // 🔹 Callback Route - Handles Spotify Auth Response
 app.get('/callback', async (req, res) => {
     const { code } = req.query;
@@ -270,6 +273,22 @@ app.get('/playlists', async (req, res) => {
     } catch (err) {
         console.error('❌ Error fetching playlists:', err);
         res.status(500).json({ error: 'Failed to fetch playlists' });
+    }
+});
+
+app.post('/feature-playlists', async (req, res) => {
+    const { username, featured } = req.body;
+
+    try {
+        await db.collection("user").updateOne(
+            { name: username },
+            { $set: { featured_playlists: featured } }
+        );
+
+        res.status(200).json({ message: "Featured playlists saved!" });
+    } catch (err) {
+        console.error("❌ Error saving featured playlists:", err);
+        res.status(500).json({ error: "Failed to save featured playlists" });
     }
 });
 
