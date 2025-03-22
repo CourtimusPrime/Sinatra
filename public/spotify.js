@@ -26,6 +26,70 @@ async function getTopTracks(uname) {
     }
 }
 
+async function getUserPlaylists(uname) {
+    try {
+        const response = await fetch(`${base_url}/playlists?username=${uname}`);
+        const text = await response.text(); // Read as plain text
+        console.log("📦 Raw playlist response:", text);
+
+        // Try to parse if it's JSON
+        try {
+            return JSON.parse(text);
+        } catch (jsonError) {
+            console.error("❌ Not valid JSON. Probably HTML fallback.");
+            return [];
+        }
+    } catch (error) {
+        console.error("❌ Error fetching playlists:", error);
+        return [];
+    }
+}
+
+let allPlaylists = []; // store them globally so we can search later
+
+function displayPlaylists(filteredPlaylists) {
+    const container = document.getElementById('playlist-container');
+    container.innerHTML = ''; // clear old results
+
+    if (filteredPlaylists.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    // Show the container only when there's something to show
+    container.style.display = 'block';
+
+    container.innerHTML = filteredPlaylists.map(pl => `
+        <div class="playlist" data-name="${pl.name.toLowerCase()}">
+            <img src="${pl.images?.[0]?.url ?? 'https://via.placeholder.com/60'}" alt="Playlist Cover" class="playlist-cover">
+            <p class="playlist-name">${pl.name}</p>
+        </div>
+    `).join('');
+}
+
+function setupPlaylistSearch() {
+    const searchBar = document.getElementById('search-bar');
+    const container = document.getElementById('playlist-container');
+
+    // Hide container by default
+    container.style.display = 'none';
+
+    searchBar.addEventListener('input', () => {
+        const query = searchBar.value.toLowerCase();
+
+        if (!query) {
+            displayPlaylists([]); // clear display if input is empty
+            return;
+        }
+
+        const filtered = allPlaylists.filter(pl =>
+            pl.name.toLowerCase().includes(query)
+        );
+
+        displayPlaylists(filtered);
+    });
+}
+
 async function displayTracks() {
     const urlSplit = window.location.href.split('/');
     const userPathString = urlSplit[urlSplit.length - 1] || null;
@@ -56,17 +120,22 @@ async function displayTracks() {
 
     if (topTracks.length === 0) {
         trackContainer.innerHTML = `<p>No top tracks available.</p>`;
-        return;
+    } else {
+        trackContainer.innerHTML = topTracks.map(({ name, artists, album }, index) => `
+            <div class="track">
+                <div class="track-rank">#${index + 1}</div>
+                <img src="${album?.images?.[0]?.url ?? 'https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193'}" alt="${name} album cover" class="album-cover">
+                <p class="song-title">${name}</p>
+                <p class="artist-name">${artists.map(a => a.name).join(', ')}</p>
+            </div>
+        `).join('');
     }
 
-    trackContainer.innerHTML = topTracks.map(({ name, artists, album }, index) => `
-        <div class="track">
-            <div class="track-rank">#${index + 1}</div>
-            <img src="${album?.images?.[0]?.url ?? 'https://i.scdn.co/image/ab6761610000517476b4b22f78593911c60e7193'}" alt="${name} album cover" class="album-cover">
-            <p class="song-title">${name}</p>
-            <p class="artist-name">${artists.map(a => a.name).join(', ')}</p>
-        </div>
-    `).join('');
+    // ✅ Fetch and display playlists + set up search
+    const playlists = await getUserPlaylists(userPathString);
+    displayPlaylists(playlists);
+    allPlaylists = await getUserPlaylists(userPathString);
+    setupPlaylistSearch();
 }
 
 window.onload = displayTracks;

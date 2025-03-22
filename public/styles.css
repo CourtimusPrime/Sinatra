@@ -140,3 +140,24 @@ h1 {
         height: 130px;
     }
 }
+
+.playlist {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.playlist-cover {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+}
+
+.playlist-name {
+    font-weight: bold;
+}
+
+#playlist-container {
+    margin-top: 10px;
+    display: none; /* Hidden by default */
+}

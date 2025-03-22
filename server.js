@@ -227,10 +227,7 @@ async function requestWithUser(username, url) {
     }
 }
 
-// 🔹 Catch-All Route for Frontend SPA
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Fallback route serving index.html
 
 // 🔹 Start Server & Connect to MongoDB
 const PORT = process.env.PORT || 3000;
@@ -240,4 +237,42 @@ const HOST = 'localhost';
 app.listen(PORT, HOST, async () => {
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     await connectToDatabase();
+});
+
+async function getUserPlaylistsFromSpotify(username) {
+    const url = 'https://api.spotify.com/v1/me/playlists?limit=50';
+    const data = await requestWithUser(username, url);
+
+    if (!data || !data.items) {
+        throw new Error("No playlists found or invalid response.");
+    }
+
+    return data.items.map(playlist => ({
+        name: playlist.name,
+        images: playlist.images,
+        id: playlist.id,
+        url: playlist.external_urls?.spotify
+    }));
+}
+
+// Example: Express route
+app.get('/playlists', async (req, res) => {
+    const username = req.query.username;
+    console.log("🎧 Playlist request for:", username);
+
+    if (!username) {
+        return res.status(400).json({ error: 'Username is required' });
+    }
+
+    try {
+        const playlists = await getUserPlaylistsFromSpotify(username);
+        res.json(playlists);
+    } catch (err) {
+        console.error('❌ Error fetching playlists:', err);
+        res.status(500).json({ error: 'Failed to fetch playlists' });
+    }
+});
+
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
