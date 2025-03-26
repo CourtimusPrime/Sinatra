@@ -238,3 +238,42 @@ h1 {
     font-size: 0.9em;
     color: #ccc;
 }
+
+.top-track-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    gap: 15px;
+    width: 100%;
+}
+
+.top-track-link:hover .top-track-name {
+    text-decoration: underline;
+    color: #1db954; /* Spotify green accent */
+}
+
+#settings-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #1db954;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+#settings-button:hover {
+    background-color: #169c42;
+}
+
+#settings-panel {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    width: fit-content;
+    max-width: 90%;
+}

@@ -40,6 +40,11 @@ async function getUserPlaylists(username) {
     }
 }
 
+document.getElementById("settings-button").addEventListener("click", () => {
+    const panel = document.getElementById("settings-panel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+});
+
 function setupSearchBar() {
     const searchBar = document.getElementById("search-bar");
 
@@ -161,13 +166,15 @@ async function displayTracks() {
     <div class="top-tracks-card">
         <h2 class="top-tracks-heading">🎧 Top Tracks</h2>
         <ul class="top-tracks-list">
-            ${topTracks.map(({ name, artists, album }, i) => `
+            ${topTracks.map(({ name, artists, album, external_urls }, i) => `
                 <li class="top-track-item">
-                    <img src="${album?.images?.[0]?.url || 'https://via.placeholder.com/64'}" class="top-track-cover" alt="Album cover for ${name}">
-                    <div class="top-track-details">
-                        <div class="top-track-name">${cleanTrackName(name)}</div>
-                        <div class="top-track-artist">${artists.map(a => a.name).join(', ')}</div>
-                    </div>
+                    <a href="${external_urls?.spotify}" target="_blank" rel="noopener noreferrer" class="top-track-link">
+                        <img src="${album?.images?.[0]?.url || 'https://via.placeholder.com/64'}" class="top-track-cover" alt="Album cover for ${name}">
+                        <div class="top-track-details">
+                            <div class="top-track-name">${cleanTrackName(name)}</div>
+                            <div class="top-track-artist">${artists.map(a => a.name).join(', ')}</div>
+                        </div>
+                    </a>
                 </li>
             `).join('')}
         </ul>

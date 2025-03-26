@@ -173,7 +173,7 @@ app.get('/toptracks', async (req, res) => {
         
         const tracks = await requestWithUser(
             req.query.username,
-            'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5'
+            'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=3'
         );
 
         if (!tracks || !tracks.items) {
