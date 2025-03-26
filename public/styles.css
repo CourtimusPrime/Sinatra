@@ -177,3 +177,64 @@ h1 {
     flex-direction: column;
     align-items: flex-start;
 }
+
+.top-tracks-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    max-width: 500px;
+    width: 90%;
+    margin-top: 30px;
+}
+
+.top-tracks-heading {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: left;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.top-tracks-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.top-track-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.top-track-cover {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.top-track-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: white;
+}
+
+.top-track-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 4px;
+    color: white;
+}
+
+.top-track-artist {
+    font-size: 0.9em;
+    color: #ccc;
+}

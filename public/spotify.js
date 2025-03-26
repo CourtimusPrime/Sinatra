@@ -2,6 +2,29 @@ const base_url = window.location.origin;
 
 let userPlaylists = [];
 
+function cleanTrackName(name) {
+    return name
+        // Remove common remaster formats
+        .replace(/ - \d{4} Remaster/gi, '')
+        .replace(/ - Remaster(ed)?( Version)?/gi, '')
+        .replace(/ - Remastered \d{4}/gi, '')
+        .replace(/\(\d{4} Remaster\)/gi, '')
+        .replace(/\[\d{4} Remaster\]/gi, '')
+        .replace(/\(Remaster(ed)?( Version)?\)/gi, '')
+
+        // Remove single versions
+        .replace(/ - Single Version/gi, '')
+        .replace(/ - Single Edit/gi, '')
+        .replace(/\(Single Version\)/gi, '')
+
+        // Remove combo formats like “ - Single; 2011 Remaster”
+        .replace(/ - Single; \d{4} Remaster/gi, '')
+
+        // Trim leftover dashes, colons, or whitespace
+        .replace(/[-:–—]\s*$/, '')
+        .trim();
+}
+
 async function getUserPlaylists(username) {
     try {
         const response = await fetch(`${base_url}/playlists?username=${username}`);
@@ -134,16 +157,22 @@ async function displayTracks() {
     const topTracks = await getTopTracks(userPathString);
     const trackContainer = document.getElementById("track-container");
 
-    trackContainer.innerHTML = topTracks.map(({ name, artists, album }, i) => `
-    <div class="track">
-        <div class="track-rank">#${i + 1}</div>
-        <img src="${album?.images?.[0]?.url ?? 'https://via.placeholder.com/150'}" class="album-cover" alt="${name} album cover" />
-        <div class="track-info">
-            <p class="song-title">${name}</p>
-            <p class="artist-name">${artists.map(a => a.name).join(', ')}</p>
-        </div>
+    trackContainer.innerHTML = `
+    <div class="top-tracks-card">
+        <h2 class="top-tracks-heading">🎧 Top Tracks</h2>
+        <ul class="top-tracks-list">
+            ${topTracks.map(({ name, artists, album }, i) => `
+                <li class="top-track-item">
+                    <img src="${album?.images?.[0]?.url || 'https://via.placeholder.com/64'}" class="top-track-cover" alt="Album cover for ${name}">
+                    <div class="top-track-details">
+                        <div class="top-track-name">${cleanTrackName(name)}</div>
+                        <div class="top-track-artist">${artists.map(a => a.name).join(', ')}</div>
+                    </div>
+                </li>
+            `).join('')}
+        </ul>
     </div>
-`).join('');
+`;
 
     // 💡 This is the key part
     await getUserPlaylists(userPathString);
