@@ -53,15 +53,34 @@ function setupSearchBar() {
         return;
     }
 
-    searchBar.addEventListener("input", () => {
-        const resultsContainer = document.getElementById("playlist-results");
+    let playlistsLoaded = false;
 
+    searchBar.addEventListener("input", async () => {
+        const resultsContainer = document.getElementById("playlist-results");
         if (!resultsContainer) {
             console.error("❌ No #playlist-results container found in DOM.");
             return;
         }
 
-        const searchTerm = searchBar.value.toLowerCase();
+        const searchTerm = searchBar.value.trim().toLowerCase();
+
+        // 🛑 Stop if the search bar is empty
+        if (searchTerm.length === 0) {
+            resultsContainer.innerHTML = "";
+            return;
+        }
+
+        // 🧠 Lazy load playlists on first interaction
+        if (!playlistsLoaded) {
+            const urlSplit = window.location.href.split('/');
+            const username = urlSplit[urlSplit.length - 1] || null;
+            if (username) {
+                await getUserPlaylists(username);
+                playlistsLoaded = true;
+            }
+        }
+
+        // Filter and render
         const filtered = userPlaylists.filter(p =>
             p.name.toLowerCase().includes(searchTerm)
         );
@@ -81,7 +100,7 @@ function setupSearchBar() {
             div.style.backgroundColor = "#fff";
             div.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
         
-            // 🎵 Playlist Image
+            // Playlist Image
             const img = document.createElement("img");
             img.src = playlist.images?.[0]?.url || "https://via.placeholder.com/50";
             img.alt = playlist.name;
@@ -91,7 +110,7 @@ function setupSearchBar() {
             img.style.borderRadius = "4px";
             img.style.marginRight = "12px";
         
-            // 📛 Playlist Name
+            // Playlist Name
             const name = document.createElement("span");
             name.textContent = playlist.name;
             name.style.fontSize = "16px";
