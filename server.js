@@ -166,17 +166,6 @@ app.get('/user', async (req, res) => {
     userData ? res.send(userData) : res.status(404).send("Invalid User");
 });
 
-app.get("/user", async (req, res) => {
-    try {
-        const user = await getUserFromDB(req.query.username); // Example function
-        if (!user) return res.status(404).json({ error: "User not found" });
-        res.json(user);
-    } catch (error) {
-        console.error("❌ Error fetching user:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-
 // 🔹 Fetch User's Top Tracks
 app.get('/toptracks', async (req, res) => {
     try {
@@ -226,6 +215,26 @@ async function requestWithUser(username, url) {
         return null;
     }
 }
+
+// 🔹 Fetch User's Playlists
+app.get('/playlists', async (req, res) => {
+    try {
+        const playlists = await requestWithUser(
+            req.query.username,
+            'https://api.spotify.com/v1/me/playlists?limit=50'
+        );
+
+        if (!playlists || !playlists.items) {
+            console.error("❌ No playlists found or invalid response format:", playlists);
+            return res.status(404).json({ error: "No Playlists Found or Invalid User" });
+        }
+
+        res.json(playlists.items);
+    } catch (error) {
+        console.error("❌ Error fetching playlists:", error);
+        res.status(500).json({ error: "Internal server error", details: error.message });
+    }
+});
 
 // 🔹 Catch-All Route for Frontend SPA
 app.get('/*', (req, res) => {

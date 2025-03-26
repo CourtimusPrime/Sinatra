@@ -140,3 +140,40 @@ h1 {
         height: 130px;
     }
 }
+
+.track {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.album-cover {
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    margin-right: 16px;
+    object-fit: cover;
+}
+
+.track-rank {
+    width: 30px;
+    font-weight: bold;
+    margin-right: 12px;
+    font-size: 18px;
+}
+.song-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+.artist-name {
+    font-size: 14px;
+    color: #666;
+}
+
+.track-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
