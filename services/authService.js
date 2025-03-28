@@ -1,0 +1,50 @@
+// services/authService.js
+const axios = require('axios');
+const querystring = require('querystring');
+const { getUserRecord, updateUserToken } = require('./spotifyService');
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.NODE_ENV === "production" ? `${process.env.PROD_URL}/callback` : "http://localhost:3000/callback";
+const TOKEN_URL = 'https://accounts.spotify.com/api/token';
+
+/**
+ * Builds the Spotify authorization URL
+ */
+function buildAuthURL() {
+    const scope = 'user-top-read';
+    const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
+    return `${SPOTIFY_AUTH_URL}?response_type=code&client_id=${CLIENT_ID}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+}
+
+/**
+ * Handles Spotify auth callback: exchanges code for token, fetches user, and stores in DB
+ */
+async function handleSpotifyCallback(code) {
+    if (!code) throw new Error("Missing authorization code.");
+
+    const response = await axios.post(
+        TOKEN_URL,
+        querystring.stringify({
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: REDIRECT_URI,
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    const user = await axios.get('https://api.spotify.com/v1/me', {
+        headers: { Authorization: `Bearer ${response.data.access_token}` }
+    });
+
+    await updateUserToken(user.data.display_name, response.data);
+
+    return user.data.display_name;
+}
+
+module.exports = {
+    buildAuthURL,
+    handleSpotifyCallback
+};
