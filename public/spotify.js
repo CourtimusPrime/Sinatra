@@ -137,7 +137,13 @@ function addPlaylistToList(playlist) {
     li.dataset.id = playlist.id;
     li.style.display = "flex";
     li.style.alignItems = "center";
+    li.style.justifyContent = "space-between"; // Make room for the ❌
     li.style.marginBottom = "10px";
+    li.style.paddingRight = "10px";
+
+    const infoContainer = document.createElement("div");
+    infoContainer.style.display = "flex";
+    infoContainer.style.alignItems = "center";
 
     // Image
     const img = document.createElement("img");
@@ -154,8 +160,23 @@ function addPlaylistToList(playlist) {
     name.textContent = playlist.name;
     name.style.fontSize = "16px";
 
-    li.appendChild(img);
-    li.appendChild(name);
+    infoContainer.appendChild(img);
+    infoContainer.appendChild(name);
+
+    // ❌ Remove Button
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "❌";
+    removeBtn.style.marginLeft = "10px";
+    removeBtn.style.background = "none";
+    removeBtn.style.border = "none";
+    removeBtn.style.color = "red";
+    removeBtn.style.fontSize = "16px";
+    removeBtn.style.cursor = "pointer";
+
+    removeBtn.onclick = () => list.removeChild(li);
+
+    li.appendChild(infoContainer);
+    li.appendChild(removeBtn);
 
     list.appendChild(li);
 }
