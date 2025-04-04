@@ -1,16 +1,30 @@
 // server.js
-
+console.log("1️⃣ Starting up server...");
 require('dotenv').config();
+console.log("2️⃣ dotenv loaded");
+
 const express = require('express');
+console.log("3️⃣ express loaded");
+
 const cors = require('cors');
+console.log("4️⃣ cors loaded");
+
 const path = require('path');
+console.log("5️⃣ path loaded");
 
-const { connectToDatabase } = require('./services/spotifyService');
-
-// Import route modules
+console.log("6️⃣ Loading routes...");
 const authRoutes = require('./routes/authRoutes');
+console.log("🧪 authRoutes:", typeof authRoutes);
 const userRoutes = require('./routes/userRoutes');
+console.log("🧪 userRoutes:", typeof userRoutes);
 const musicRoutes = require('./routes/musicRoutes');
+console.log("🧪 musicRoutes:", typeof musicRoutes);
+const playlistTracksRouter = require('./routes/playlistTracks');
+console.log("🧪 playlistTracksRouter:", typeof playlistTracksRouter);
+
+console.log("7️⃣ Routes loaded");
+const { connectToDatabase } = require('./services/spotifyService');
+console.log("8️⃣ spotifyService loaded");
 
 const app = express();
 app.use(cors());
@@ -26,13 +40,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// 📦 Use modular routes
+// 📦 Mount API routes before the SPA fallback
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(musicRoutes);
+app.use(playlistTracksRouter); // ✅ Keep this here
 
-// 🌐 SPA fallback
-app.get('/*', (req, res) => {
+// ❗️ Catch-all route for SPA paths (excluding known static files like login.html)
+app.get('*', (req, res, next) => {
+    if (req.path.endsWith('.html') || req.path.includes('.')) {
+        return next(); // Let static middleware handle it
+    }
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

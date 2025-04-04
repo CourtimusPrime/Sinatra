@@ -1,0 +1,76 @@
+<!-- public/playlist-tracks.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Playlist Tracks</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <a href="/all-playlists.html">← Back to Playlists</a>
+    <h1 id="playlist-name"></h1>
+    <img id="playlist-art" width="200">
+    <div id="auth-warning" style="color: red; font-weight: bold; margin: 20px 0;"></div>
+    <div id="tracks-container"></div>
+
+    <script type="module">
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        const username = localStorage.getItem("spotify_username");
+        const base_url = window.location.origin;
+
+        async function fetchTracks() {
+            try {
+                const res = await fetch(`${base_url}/playlist-tracks?id=${id}&username=${username}`);
+                const text = await res.text();
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (jsonErr) {
+                    console.error("❌ Not valid JSON. Response was:", text);
+                    document.getElementById("auth-warning").textContent = "⚠️ Playlist not found or invalid response.";
+                    return;
+                }
+
+                document.getElementById("playlist-name").textContent = data.playlistName;
+                document.getElementById("playlist-art").src = data.playlistArt;
+
+                const container = document.getElementById("tracks-container");
+
+                if (!data.tracks || !data.tracks.length || !data.tracks[0].name) {
+                    document.getElementById("auth-warning").textContent = "🔒 Log in with Spotify to view track details.";
+                }
+
+                data.tracks.forEach(track => {
+                    const div = document.createElement("div");
+                    div.style.marginBottom = "20px";
+
+                    if (track.name) {
+                        div.innerHTML = `
+                            <strong>${track.name}</strong> by ${track.artist}<br>
+                            Album: ${track.album}<br>
+                            <a href="${track.spotify_url}" target="_blank">Open on Spotify</a><br>
+                            ${track.preview_url ? `<audio controls src="${track.preview_url}"></audio>` : ''}
+                            <hr>
+                        `;
+                    } else {
+                        div.innerHTML = `
+                            ISRC: <code>${track.isrc}</code><br>
+                            <em>Track details require login.</em>
+                            <hr>
+                        `;
+                    }
+
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                document.getElementById("auth-warning").textContent = "⚠️ Error loading playlist. Try again.";
+                console.error("Fetch error:", err);
+            }
+        }
+
+        fetchTracks();
+    </script>
+</body>
+</html>

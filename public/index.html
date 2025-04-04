@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Top Tracks This Month</title>
+    <title>{username}</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <!-- Login Container -->
-    <div id="login-container">
-        <a id="login-link" href="/login">Login with Spotify</a>
-    </div>
-
     <!-- Profile Section -->
     <div id="profile" style="display: none;"> <!-- Hidden until user is fetched -->
         <img id="profile-pic" src="https://wallpapers.com/images/hd/mr-bean-1600-x-1600-picture-sa8hx6eb7w4ne5k1.jpg" alt="Profile Picture">
         <h2 id="username"></h2>
+    </div>
+
+    <!-- Featured Playlists -->
+    <div id="featured-playlists">
+        <h3>⭐️ Featured Playlists:</h3>
+        <ul id="playlist-list"></ul>
+        <a id="see-all-link" href="/playlists/view">See all playlists</a>
     </div>
 
     <!-- Title Section -->
@@ -35,12 +37,6 @@
 
         <!-- Playlist Results -->
         <div id="playlist-results"></div>
-    </div>
-
-    <!-- Selected Playlists -->
-    <div id="selected-playlists">
-        <h3>Selected Playlists:</h3>
-        <ul id="playlist-list"></ul>
     </div>
 
     <!-- JavaScript -->

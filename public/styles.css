@@ -265,3 +265,19 @@ h1 {
         width: 90%;
     }
 }
+
+#featured-playlists {
+    margin-bottom: 30px;
+}
+
+#see-all-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #1DB954;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#see-all-link:hover {
+    text-decoration: underline;
+}

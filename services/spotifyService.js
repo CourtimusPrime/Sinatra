@@ -1,6 +1,7 @@
 // services/spotifyService.js
 const axios = require('axios');
 const mongodb = require('mongodb');
+let db;
 
 const client = new mongodb.MongoClient(process.env.MONGODB_URI, {
     serverApi: {
@@ -9,8 +10,6 @@ const client = new mongodb.MongoClient(process.env.MONGODB_URI, {
         deprecationErrors: true,
     }
 });
-
-let db;
 
 async function connectToDatabase() {
     try {
@@ -25,12 +24,57 @@ async function connectToDatabase() {
 
 async function getUserRecord(username) {
     try {
-        return await db.collection("user").findOne({ name: username });
+        return await db.collection("user").findOne({ user_id: username });
     } catch (err) {
         console.error("❌ Error fetching user record:", err);
         return null;
     }
 }
+
+const storeUserPlaylists = async (userId, accessToken) => {
+    try {
+        const response = await axios.get(`https://api.spotify.com/v1/users/${userId}/playlists?limit=50`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const playlists = response.data.items;
+        const collection = db.collection('user_playlists');
+
+        await collection.deleteMany({ user_id: userId });
+
+        for (const playlist of playlists) {
+            // Fetch the tracks from the playlist
+            const tracksRes = await axios.get(playlist.tracks.href, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+
+            const isrcs = tracksRes.data.items
+                .map(item => item.track?.external_ids?.isrc)
+                .filter(Boolean);
+
+            const playlistDoc = {
+                name: playlist.name,
+                user_id: userId,
+                art_url: playlist.images?.[0]?.url || "https://via.placeholder.com/100",
+                description: playlist.description || "",
+                length: playlist.tracks?.total || 0,
+                isrcs: isrcs,
+                isrc_string: isrcs.join(','), // ✅ new field
+                external_urls: playlist.external_urls
+            };
+
+            await collection.updateOne(
+                { user_id: userId, spotify_id: playlist.id }, // match by user + playlist
+                { $set: playlistDoc },                        // update all fields
+                { upsert: true }                              // insert if not found
+              );
+        }
+
+        console.log(`✅ Stored ${playlists.length} playlists for user ${userId}`);
+    } catch (err) {
+        console.error("❌ Error storing user playlists:", err.message);
+    }
+};
 
 async function updateUserToken(username, tokenResponse) {
     try {
@@ -43,9 +87,9 @@ async function updateUserToken(username, tokenResponse) {
         };
 
         if (existingUser) {
-            await db.collection("user").updateOne({ name: username }, { $set: tokenData });
+            await db.collection("user").updateOne({ user_id: username }, { $set: tokenData });
         } else {
-            await db.collection("user").insertOne({ name: username, ...tokenData });
+            await db.collection("user").insertOne({ user_id: username, ...tokenData });
         }
 
         console.log(`✅ Updated tokens for user: ${username}`);
@@ -69,10 +113,51 @@ async function requestWithUser(username, url) {
         return null;
     }
 }
+function getDb() {
+    return db;
+}
+
+const getTracksByISRCs = async (username, isrcs = []) => {
+    if (!isrcs.length) return [];
+
+    const user = await getUserRecord(username);
+    if (!user?.token) return [];
+
+    const headers = {
+        Authorization: `Bearer ${user.token}`
+    };
+
+    const results = [];
+
+    for (const isrc of isrcs) {
+        try {
+            const res = await axios.get(`https://api.spotify.com/v1/search?q=isrc:${isrc}&type=track`, { headers });
+            const track = res.data.tracks?.items?.[0];
+            if (track) {
+                results.push({
+                    name: track.name,
+                    artist: track.artists.map(a => a.name).join(', '),
+                    album: track.album.name,
+                    preview_url: track.preview_url,
+                    isrc,
+                    spotify_url: track.external_urls.spotify,
+                    image: track.album.images?.[0]?.url || null
+                });
+            }
+        } catch (err) {
+            console.warn(`❌ Failed to fetch track for ISRC ${isrc}:`, err.message);
+        }
+    }
+
+    return results;
+};
 
 module.exports = {
     connectToDatabase,
     getUserRecord,
     updateUserToken,
-    requestWithUser
+    requestWithUser,
+    storeUserPlaylists,
+    getDb,
+    getTracksByISRCs
 };

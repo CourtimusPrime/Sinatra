@@ -130,14 +130,20 @@ function setupSearchBar() {
 function addPlaylistToList(playlist) {
     const list = document.getElementById("playlist-list");
 
-    // Prevent duplicates
+    // 🚫 Prevent duplicates
     if ([...list.children].some(li => li.dataset.id === playlist.id)) return;
+
+    // ⛔ Limit to 3 featured playlists
+    if (list.children.length >= 3) {
+        alert("You can only feature up to 3 playlists.");
+        return;
+    }
 
     const li = document.createElement("li");
     li.dataset.id = playlist.id;
     li.style.display = "flex";
     li.style.alignItems = "center";
-    li.style.justifyContent = "space-between"; // Make room for the ❌
+    li.style.justifyContent = "space-between";
     li.style.marginBottom = "10px";
     li.style.paddingRight = "10px";
 
@@ -145,7 +151,6 @@ function addPlaylistToList(playlist) {
     infoContainer.style.display = "flex";
     infoContainer.style.alignItems = "center";
 
-    // Image
     const img = document.createElement("img");
     img.src = playlist.images?.[0]?.url || "https://via.placeholder.com/50";
     img.alt = playlist.name;
@@ -155,7 +160,6 @@ function addPlaylistToList(playlist) {
     img.style.marginRight = "10px";
     img.style.objectFit = "cover";
 
-    // Name
     const name = document.createElement("span");
     name.textContent = playlist.name;
     name.style.fontSize = "16px";
@@ -163,7 +167,6 @@ function addPlaylistToList(playlist) {
     infoContainer.appendChild(img);
     infoContainer.appendChild(name);
 
-    // ❌ Remove Button
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "❌";
     removeBtn.style.marginLeft = "10px";
@@ -182,47 +185,57 @@ function addPlaylistToList(playlist) {
 }
 
 async function displayTracks() {
-    const urlSplit = window.location.href.split('/');
-    const userPathString = urlSplit[urlSplit.length - 1] || null;
+    // ✅ Use localStorage first, fallback to URL last
+    let userPathString = localStorage.getItem("spotify_username");
 
     if (!userPathString) {
-        document.body.innerHTML = `<a href="${base_url}/login">Login with Spotify</a>`;
+        const urlSplit = window.location.href.split('/');
+        userPathString = urlSplit[urlSplit.length - 1] || null;
+    }
+
+    if (!userPathString || userPathString.includes(".html")) {
+        window.location.href = `${base_url}/login.html`;
         return;
     }
 
     const user = await getSpotifyUser(userPathString);
-
     if (!user) {
-        document.body.innerHTML = `<h2>User not found. <a href="${base_url}/login">Login with Spotify</a></h2>`;
+        window.location.href = `${base_url}/login.html`;
         return;
     }
 
-    document.getElementById("username").innerText = user.display_name || "User";
+    localStorage.setItem("spotify_username", user.id);
+
+    const usernameEl = document.getElementById("username");
+    if (usernameEl) usernameEl.innerText = user.display_name || "User";
+
+    console.log("🧑 Spotify User Object:", user);
 
     const topTracks = await getTopTracks(userPathString);
     const trackContainer = document.getElementById("track-container");
 
-    trackContainer.innerHTML = `
-    <div class="top-tracks-card">
-        <h2 class="top-tracks-heading">🎧 Top Tracks</h2>
-        <ul class="top-tracks-list">
-            ${topTracks.map(({ name, artists, album, external_urls }, i) => `
-                <li class="top-track-item">
-                    <a href="${external_urls?.spotify}" target="_blank" rel="noopener noreferrer" class="top-track-link">
-                        <img src="${album?.images?.[0]?.url || 'https://via.placeholder.com/64'}" class="top-track-cover" alt="Album cover for ${name}">
-                        <div class="top-track-details">
-                            <div class="top-track-name">${cleanTrackName(name)}</div>
-                            <div class="top-track-artist">${artists.map(a => a.name).join(', ')}</div>
-                        </div>
-                    </a>
-                </li>
-            `).join('')}
-        </ul>
-    </div>
-`;
+    if (trackContainer) {
+        trackContainer.innerHTML = `
+        <div class="top-tracks-card">
+            <h2 class="top-tracks-heading">🎧 Top Tracks</h2>
+            <ul class="top-tracks-list">
+                ${topTracks.map(({ name, artists, album, external_urls }) => `
+                    <li class="top-track-item">
+                        <a href="${external_urls?.spotify}" target="_blank" rel="noopener noreferrer" class="top-track-link">
+                            <img src="${album?.images?.[0]?.url || 'https://via.placeholder.com/64'}" class="top-track-cover" alt="Album cover for ${name}">
+                            <div class="top-track-details">
+                                <div class="top-track-name">${cleanTrackName(name)}</div>
+                                <div class="top-track-artist">${artists.map(a => a.name).join(', ')}</div>
+                            </div>
+                        </a>
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+        `;
+    }
 
-    // 💡 This is the key part
-    await getUserPlaylists(userPathString);
+    await getUserPlaylists(user.id);
     setupSearchBar();
 }
 
