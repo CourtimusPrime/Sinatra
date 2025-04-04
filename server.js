@@ -3,6 +3,7 @@ console.log("1️⃣ Starting up server...");
 require('dotenv').config();
 console.log("2️⃣ dotenv loaded");
 
+console.log("✅ Requiring express...");
 const express = require('express');
 console.log("3️⃣ express loaded");
 
