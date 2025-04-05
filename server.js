@@ -24,15 +24,29 @@ const playlistTracksRouter = require('./routes/playlistTracks');
 console.log("🧪 playlistTracksRouter:", typeof playlistTracksRouter);
 
 console.log("7️⃣ Routes loaded");
-const { connectToDatabase } = require('./services/spotifyService');
+const { connectToDatabase } = require('./services/spotifyService.js');
 console.log("8️⃣ spotifyService loaded");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/login', authRoutes); // this is crucial for /login/platforms to work
 
-// 🔒 Enforce HTTPS in production
+// 🛡️ Set up session management BEFORE routes
+const session = require('express-session');
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your_super_secret_key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 1000 * 60 * 10
+    }
+}));
+
+// 🔒 Optional: HTTPS redirect in prod
 app.use((req, res, next) => {
     if (req.headers.host.includes("localhost")) return next();
     if (req.headers["x-forwarded-proto"] !== "https") {
@@ -41,11 +55,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// 📦 Mount API routes before the SPA fallback
+// 📦 Then mount routes
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(musicRoutes);
-app.use(playlistTracksRouter); // ✅ Keep this here
+app.use(playlistTracksRouter);
 
 // ❗️ Catch-all route for SPA paths (excluding known static files like login.html)
 app.get('*', (req, res, next) => {

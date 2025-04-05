@@ -19,7 +19,7 @@
         </select>
     </div>
 
-    <div id="all-playlists-container" class="playlist-grid"></div>
+    <div id="playlists-container" class="playlist-grid"></div>
 
     <script type="module">
         let originalPlaylists = [];
@@ -42,12 +42,12 @@
                 renderPlaylists(originalPlaylists);
             } catch (err) {
                 console.error("Error loading playlists:", err);
-                document.getElementById("all-playlists-container").innerHTML = "<p>Error loading playlists.</p>";
+                document.getElementById("playlists-container").innerHTML = "<p>Error loading playlists.</p>";
             }
         }
 
         function renderPlaylists(playlists) {
-            const container = document.getElementById("all-playlists-container");
+            const container = document.getElementById("playlists-container");
             container.innerHTML = "";
 
             playlists.forEach(playlist => {

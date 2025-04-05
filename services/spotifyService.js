@@ -159,5 +159,6 @@ module.exports = {
     requestWithUser,
     storeUserPlaylists,
     getDb,
-    getTracksByISRCs
+    getTracksByISRCs,
+    MUSIC_PLATFORM: process.env.MUSIC_PLATFORM
 };

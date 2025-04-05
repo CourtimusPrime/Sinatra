@@ -1,15 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinatra - Login</title>
-    <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sinatra - Login</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div class="login-wrapper">
-        <h1>Welcome to Sinatra</h1>
-        <a class="login-btn" href="/login">Login with Spotify</a>
+  <div class="login-wrapper">
+    <h1>Welcome to Sinatra</h1>
+    <div id="login-buttons">
+      <p>Loading login options...</p>
     </div>
+  </div>
+  <script>
+    async function loadPlatforms() {
+      try {
+        const res = await fetch('/login/platforms');
+        const platforms = await res.json();
+
+        // Log the platforms to check the data
+        console.log(platforms);  
+        
+        // Ensure color is correctly set
+        console.log("Platforms Data:", platforms);
+
+        const container = document.getElementById('login-buttons');
+        container.innerHTML = ''; // Clears the existing content
+
+        platforms.forEach(({ id, name, icon, color }) => {
+          console.log(`Setting background color for ${name} to: ${color}`);
+
+          const btn = document.createElement('a');
+          btn.href = `/login/${id}`;
+          btn.className = 'login-btn';
+
+          // Set background color using the color property from the backend (RGBA)
+          // Use fallback color if no color is provided
+          btn.style.backgroundColor = color || 'rgba(204, 204, 204, 1)'; 
+
+          // Add !important to make sure it takes precedence
+          btn.style.setProperty('background-color', btn.style.backgroundColor, 'important');
+
+          btn.style.color = 'white'; // Set text color to white
+          btn.style.padding = '12px 24px'; // Adjust padding for better design
+          btn.style.borderRadius = '6px';
+          btn.style.display = 'inline-flex';
+          btn.style.alignItems = 'center';
+          btn.style.justifyContent = 'center';
+          btn.style.textDecoration = 'none';  // To avoid underlines
+          btn.style.fontSize = '16px';
+          btn.style.fontWeight = 'bold';
+          btn.style.marginBottom = '10px'; // Space between buttons
+          btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'; // Optional: Add subtle shadow
+
+          // Create the image element (icon)
+          const img = document.createElement('img');
+          img.src = icon;  // Set the source to the image path
+          img.alt = `${name} logo`;
+          img.className = 'platform-icon'; // Optional: add a class for styling
+          img.style.marginRight = '12px'; // Space between the icon and text
+          img.style.width = '24px';  // Adjust icon size as needed
+          img.style.height = '24px';
+
+          // Add the icon and the text together
+          btn.appendChild(img); // Append the image to the button
+          btn.appendChild(document.createTextNode(` Sign in with ${name}`)); // Add the name text
+
+          container.appendChild(btn); // Append the button to the container
+        });
+
+        console.log("✅ Login options loaded:", platforms);
+      } catch (err) {
+        console.error("❌ Failed to load login options:", err);
+        document.getElementById('login-buttons').innerText = "Failed to load login options.";
+      }
+    }
+
+    loadPlatforms();
+  </script>
 </body>
 </html>
