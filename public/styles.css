@@ -12,6 +12,26 @@ body {
     align-items: center;
 }
 
+.logout-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 14px;
+    background-color: #ff5252;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: #e04040;
+}
+
 h1 {
     text-align: center;
     font-size: 2.5em;
@@ -143,6 +163,12 @@ h1 {
     margin-top: 20px;
 }
 
+.login-btn.tidal {
+    background-color: #0c0c0c;
+    color: white;
+    margin-top: 1em;
+  }
+  
 #profile-pic {
     width: 100px;
     height: 100px;

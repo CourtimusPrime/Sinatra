@@ -1,3 +1,19 @@
+// public/app.js
+
+const PLATFORM = "spotify"; // or "tidal" (set by environment or API)
+
+function getUserEndpoint() {
+    return PLATFORM === "tidal" ? "/tidal/user" : "/user";
+}
+
+// Replace all fetch URLs like `/user` or `/toptracks` with functions
+
+async function fetchUserData(username) {
+    const response = await fetch(`${base_url}${getUserEndpoint()}?username=${username}`);
+    if (!response.ok) throw new Error("Failed to fetch user data");
+    return await response.json();
+}
+
 const base_url = window.location.origin;
 
 let userPlaylists = [];
@@ -251,6 +267,14 @@ async function getSpotifyUser(uname) {
     }
 }
 
+function getTopTracksEndpoint() {
+    return PLATFORM === "tidal" ? "/tidal/toptracks" : "/toptracks";
+}
+
+function getPlaylistsEndpoint() {
+    return PLATFORM === "tidal" ? "/tidal/playlists" : "/playlists";
+}
+
 async function getTopTracks(uname) {
     try {
         const response = await fetch(`${base_url}/toptracks?username=${uname}`);
@@ -266,4 +290,15 @@ async function getTopTracks(uname) {
 
 window.onload = () => {
     displayTracks();
-  };
+
+    const logoutBtn = document.getElementById("logout-button");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("spotify_username");
+            localStorage.removeItem("tidal_username");
+            window.location.href = `${base_url}/login.html`;
+        });
+    } else {
+        console.warn("⚠️ Logout button not found in DOM.");
+    }
+};
