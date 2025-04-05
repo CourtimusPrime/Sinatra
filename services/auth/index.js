@@ -11,15 +11,15 @@ const platforms = {
     buildAuthURL: spotify.buildAuthURL,
     handleCallback: spotify.handleCallback,
     needsRequest: false,
-    hex: "#1ED760"
+    color: "rgba(30,215,96,1)"
   },
   tidal: {
-    name: "TIDAL",
+    name: "Tidal",
     icon: "/png/tidal.png",
     buildAuthURL: tidal.buildAuthURL,
     handleCallback: tidal.handleCallback,
     needsRequest: true,
-    hex: "#000000"
+    color:"rgba(0,0,0,0)"
   },
   // future:
   // apple: { ... },

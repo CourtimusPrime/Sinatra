@@ -176,22 +176,11 @@ h1 {
   }
 
 /* Platform button styling */
-.login-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 24px; /* Adjust padding for a better look */
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
-    color: white; /* Ensure text color is white */
-    margin-bottom: 10px; /* Space between buttons */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
-    transition: opacity 0.3s ease; /* Smooth transition on hover */
-  }
+#login-buttons .login-btn:hover {
+    opacity: 0.9; /* Optional: Add hover effect */
+}
   
-  .login-btn:hover {
+.login-btn:hover {
     opacity: 0.9; /* Optional: Add hover effect */
   }
   
