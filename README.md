@@ -1,18 +1,8 @@
-# Sinatra
-Sinatra is a social platform for sharing your music tastes.
+# About
+**Sinatra is a cross-platform music player built to share music.** Sinatra lets you create a custom link-in-bio music profile to feature your favourite tracks and playlists. Share songs between platforms easily, see which friends like your music, and compare music tastes with dynamic charts of your music data. Made for music fans by music fans, Sinatra lets people express themselves with music in a space we can all share. 
 
-## Key Features:
-1. 'Sign in with Spotify' to list your top songs from last week.
-2. Manually list your favourite tracks, albums, and artists
-3. Show a live feed of 'Playing Now'
-
-## Development Plan
-
-### Version 1
-Includes a rudimentary HTML to show your top five songs on Spotify (using JS).
-
-### Version 2
-Includes a search function to manually create lists.
-
-### Version 3
-Open beta to be shared and enjoyed by multiple people.
+# Usage
+1. Set up an .env file containing: Spotify ID + Secret, MongoDB_URI, session_secret, port, node_env, music_platform, and prod_url.
+2. If it's not already there, throw in a .gitignore file with node_modules/ and .env. This saves A LOT of data.
+3. Open terminal to run 'npm install' to download all modules, then do npm run dev OR node server.js
+4. Open localhost:3000 in your browser and ta freaking da.
