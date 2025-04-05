@@ -13,32 +13,60 @@
       <p>Loading login options...</p>
     </div>
   </div>
-
   <script>
     async function loadPlatforms() {
-      try {
-        const res = await fetch('/login/platforms');
-        const platforms = await res.json();
+  try {
+    const res = await fetch('/login/platforms');
+    const platforms = await res.json();
 
-        const container = document.getElementById('login-buttons');
-        container.innerHTML = '';
+    console.log(platforms);  // Log the platforms to see the data
 
-        platforms.forEach(({ id, name, icon }) => {
-          const btn = document.createElement('a');
-          btn.href = `/login/${id}`;
-          btn.className = 'login-btn';
-          btn.textContent = `${icon} Sign in with ${name}`;
-          container.appendChild(btn);
-        });
+    const container = document.getElementById('login-buttons');
+    container.innerHTML = ''; // Clears the existing content
 
-        console.log("✅ Login options loaded:", platforms);
-      } catch (err) {
-        console.error("❌ Failed to load login options:", err);
-        document.getElementById('login-buttons').innerText = "Failed to load login options.";
-      }
+    platforms.forEach(({ id, name, icon, hex }) => {
+      const btn = document.createElement('a');
+      btn.href = `/login/${id}`;
+      btn.className = 'login-btn';
+
+      // Set background color using the hex value directly
+      btn.style.backgroundColor = hex; // Hex color applied here
+      btn.style.color = 'white'; // Set text color to white
+      btn.style.padding = '12px 24px'; // Adjust padding for better design
+      btn.style.borderRadius = '6px';
+      btn.style.display = 'inline-flex';
+      btn.style.alignItems = 'center';
+      btn.style.justifyContent = 'center';
+      btn.style.textDecoration = 'none';  // To avoid underlines
+      btn.style.fontSize = '16px';
+      btn.style.fontWeight = 'bold';
+      btn.style.marginBottom = '10px'; // Space between buttons
+      btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'; // Optional: Add subtle shadow
+
+      // Create the image element (icon)
+      const img = document.createElement('img');
+      img.src = icon;  // Set the source to the image path
+      img.alt = `${name} logo`;
+      img.className = 'platform-icon';  // Optional: add a class for styling
+      img.style.marginRight = '12px';  // Space between the icon and text
+      img.style.width = '24px';  // Adjust icon size as needed
+      img.style.height = '24px';
+
+      // Add the icon and the text together
+      btn.appendChild(img); // Append the image to the button
+      btn.appendChild(document.createTextNode(` Sign in with ${name}`)); // Add the name text
+
+      container.appendChild(btn); // Append the button to the container
+    });
+
+      console.log("✅ Login options loaded:", platforms);
+    } catch (err) {
+      console.error("❌ Failed to load login options:", err);
+      document.getElementById('login-buttons').innerText = "Failed to load login options.";
     }
+  }
 
-    loadPlatforms();
+  loadPlatforms();
   </script>
 </body>
 </html>

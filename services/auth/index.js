@@ -7,17 +7,19 @@ const tidal = require('./tidal');
 const platforms = {
   spotify: {
     name: "Spotify",
-    icon: "🎧",
+    icon: "/png/spotify.png",
     buildAuthURL: spotify.buildAuthURL,
     handleCallback: spotify.handleCallback,
-    needsRequest: false
+    needsRequest: false,
+    hex: "#1ED760"
   },
   tidal: {
     name: "TIDAL",
-    icon: "🌊",
+    icon: "/png/tidal.png",
     buildAuthURL: tidal.buildAuthURL,
     handleCallback: tidal.handleCallback,
-    needsRequest: true
+    needsRequest: true,
+    hex: "#000000"
   },
   // future:
   // apple: { ... },
