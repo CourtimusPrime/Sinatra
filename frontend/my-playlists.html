@@ -1,0 +1,19 @@
+<!--my-playlists.html-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Playlists – Sinatra</title>
+  <script defer src="/static/js/my-playlists.js"></script>
+</head>
+<body>
+  <h1>Your Imported Playlists</h1>
+  <button onclick="goHome()">← Back to Home</button>
+  <div id="playlist-container" class="playlist-grid"></div>
+
+  <div id="track-view" class="hidden">
+    <h2 id="playlist-title"></h2>
+    <div id="tracks-list"></div>
+    <button onclick="hideTracks()">← Back to Playlists</button>
+  </div>
+</body>
+</html>

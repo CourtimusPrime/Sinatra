@@ -1,0 +1,23 @@
+<!--frontend/index.html-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sinatra</title>
+</head>
+<body>
+  <h1>Welcome to Sinatra</h1>
+  <button id="loginBtn">Login</button>
+
+  <script>
+    // Check if user_id exists
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      window.location.href = "/home";
+    }
+
+    document.getElementById("loginBtn").onclick = () => {
+      window.location.href = "/login-page";
+    };
+  </script>
+</body>
+</html>

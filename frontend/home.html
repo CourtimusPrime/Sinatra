@@ -1,0 +1,33 @@
+<!--frontend/home.html-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Home – Sinatra</title>
+  <script defer src="/static/js/home.js"></script>
+</head>
+<body>
+  <button onclick="logout()">Log out</button>
+  <h1>🎧 Welcome, <span id="user-name">...</span></h1>
+  <img id="profile-pic" src="" width="100" />
+  
+  <h2>Now Playing:</h2>
+  <div id="now-playing">
+    <p id="track-name">No track playing</p>
+    <img id="track-art" src="" width="100" />
+    <br>
+    <button onclick="loadNowPlaying()">🔄 Refresh</button>
+  </div>
+
+  <h2>Your Featured Playlists</h2>
+  <div id="featured-playlists" class="playlist-grid"></div>
+
+  <div id="playlist-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="close-modal">&times;</span>
+      <h3 id="modal-title"></h3>
+      <div id="modal-tracks"></div>
+    </div>
+  </div>
+  <button onclick="window.location.href='/my-playlists'">Browse All My Playlists</button>
+</body>
+</html>

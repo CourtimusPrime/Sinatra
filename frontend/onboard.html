@@ -1,0 +1,55 @@
+<!--frontend/onboard.html-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Onboarding – Sinatra</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script defer src="/static/js/onboard.js"></script>
+  </head>
+<body>
+  <div class="search-container">
+    <input type="text" id="search-bar" placeholder="Search playlists...">
+  </div>
+  
+  <div class="sort-container">
+    <label for="sort-select">Sort by:</label>
+    <select id="sort-select">
+      <option value="songs-desc">Songs (High → Low)</option>
+      <option value="songs-asc">Songs (Low → High)</option>
+      <option value="name-asc">Name (A → Z)</option>
+      <option value="name-desc">Name (Z → A)</option>
+    </select>
+  </div>
+  
+  <div id="playlist-list" class="playlist-grid"></div>
+
+  <div id="step-2" class="step" style="display:none">
+    <h2>🧑 Is this your name?</h2>
+    <p id="current-name"></p>
+    <label><input type="radio" name="nameOption" value="keep" checked> Yes</label>
+    <label><input type="radio" name="nameOption" value="change"> No</label>
+    <div id="name-change-box" style="display:none;">
+      <input type="text" id="new-name" placeholder="Enter your name" />
+    </div>
+    <button onclick="nextStep()">Next</button>
+  </div>
+
+  <div id="step-3" class="step" style="display:none">
+    <h2>🖼️ Your profile picture</h2>
+    <img id="profile-pic" src="" width="100" />
+    <p>Change it?</p>
+    <input type="file" id="profile-upload" />
+    <button onclick="nextStep()">Next</button>
+  </div>
+
+  <div id="step-4" class="step" style="display:none">
+    <h2>⏳ Setting things up...</h2>
+    <p>Please wait...</p>
+    <div class="spinner"></div>
+  </div>
+  <div id="onboarding-footer">
+    <div id="selected-count">0 playlists selected</div>
+    <button id="next-button" onclick="nextStep()" disabled>Next</button>
+  </div>
+</body>
+</html>
