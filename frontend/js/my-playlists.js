@@ -49,7 +49,8 @@ function showTracks(playlist) {
 
 function hideTracks() {
   document.getElementById("track-view").classList.add("hidden");
-  document.getElementById("playlist-container").style.display = "flex";
+  document.getElementById("playlist-container").style.display = "grid";
+  window.scrollTo(0, 0); // ← Optional, but nice UX
 }
 
 function goHome() {

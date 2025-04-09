@@ -137,7 +137,12 @@ def get_playback_state(access_token: str = Depends(get_token)):
                     "name": playback["item"]["name"],
                     "artist": playback["item"]["artists"][0]["name"],
                     "album": playback["item"]["album"]["name"],
-                    "external_url": playback["item"]["external_urls"]["spotify"]
+                    "external_url": playback["item"]["external_urls"]["spotify"],
+                    "album_art_url": (
+                        playback["item"]["album"]["images"][0]["url"]
+                        if playback["item"]["album"].get("images")
+                        else None
+                    )
                 }
             }
         }
@@ -155,9 +160,20 @@ def refresh(refresh_token: str = Query(...)):
     }
 
 @app.get("/me")
-def get_current_user(access_token: str = Depends(get_token)):
+def get_current_user(access_token: str = Depends(get_token), user_id: str = Query(...)):
     sp = spotipy.Spotify(auth=access_token)
-    return sp.current_user()
+    user = sp.current_user()
+    mongo_user = users_collection.find_one({"user_id": user["id"]})
+
+    return {
+        "user_id": user["id"],
+        "display_name": user["display_name"],
+        "email": user["email"],
+        "profile_picture": (
+            user["images"][0]["url"] if user.get("images") and len(user["images"]) > 0 else None
+        ),
+        "important_playlists": mongo_user.get("important_playlists", []) if mongo_user else []
+    }
 
 @app.get("/playlists")
 def get_playlists(access_token: str = Depends(get_token)):
@@ -261,7 +277,11 @@ def complete_onboarding(data: dict):
                 "name": track["name"],
                 "artist": track["artists"][0]["name"],
                 "album": track["album"]["name"],
-                "album_art": track["album"]["images"][0]["url"] if track["album"]["images"] else None,
+                "album_art": (
+                    track["album"]["images"][0]["url"]
+                    if track.get("album") and track["album"].get("images")
+                    else None
+                ),
                 "isrc": track.get("external_ids", {}).get("isrc"),
                 "track_id": track["id"]
             })
