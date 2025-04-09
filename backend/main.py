@@ -314,3 +314,21 @@ def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
 @app.get("/my-playlists")
 def serve_my_playlists():
     return FileResponse("frontend/my-playlists.html")
+
+@app.get("/user-genres")
+def get_flat_user_genres(
+    access_token: str = Depends(get_token),
+    time_range: str = "short_term",  # "short_term" = past 4 weeks
+    limit: int = 100
+):
+    sp = spotipy.Spotify(auth=access_token)
+    top_tracks = sp.current_user_top_tracks(limit=limit, time_range=time_range)
+
+    artist_genre_cache = {}
+    flat_genres = []
+
+    for track in top_tracks["items"]:
+        genres = get_artist_genres(sp, track["artists"], artist_genre_cache)
+        flat_genres.extend(genres)
+
+    return {"genres": flat_genres}
