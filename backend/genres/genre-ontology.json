@@ -1,0 +1,26 @@
+{
+  "name": "music",
+  "children": [
+    {
+      "name": "rock",
+      "children": [
+        { "name": "alternative rock" },
+        { "name": "classic rock" }
+      ]
+    },
+    {
+      "name": "pop",
+      "children": [
+        { "name": "k-pop" },
+        { "name": "synthpop" }
+      ]
+    },
+    {
+      "name": "electronic",
+      "children": [
+        { "name": "house" },
+        { "name": "techno" }
+      ]
+    }
+  ]
+}
