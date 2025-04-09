@@ -54,7 +54,11 @@ def callback(code: str):
             "expires_at": expires_at,
             "display_name": user_profile["display_name"],
             "email": user_profile["email"],
-            "profile_picture": user_profile["images"][0]["url"] if user_profile["images"] else None
+            "profile_picture": (
+                user_profile["images"][0]["url"]
+                if user_profile.get("images") and len(user_profile["images"]) > 0
+                else "https://www.rollingstone.com/wp-content/uploads/2020/11/alex-trebek-obit.jpg?w=1600&h=900&crop=1"
+            )
         }},
         upsert=True
     )
@@ -282,8 +286,8 @@ def complete_onboarding(data: dict):
 
     for pl in full_playlists:
         users_collection.update_one(
-            {"public_playlists.playlist_id": pl["playlist_id"]},
-            {"$set": {"public_playlists.$": pl}},
+            {"user_id": data["user_id"]},
+            {"$addToSet": {"public_playlists": pl}},  # you could also use $push if duplicates don't matter
             upsert=True
         )
 

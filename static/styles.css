@@ -35,7 +35,7 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 2px solid transparent;
   cursor: pointer;
 }
@@ -46,6 +46,8 @@ body {
 
 .playlist-card.checked {
   border-color: #1DB954;
+  transform: scale(1.02);
+  box-shadow: 0 0 10px limegreen;
 }
 
 .playlist-cover {
@@ -119,12 +121,14 @@ input[type="checkbox"]:checked + .playlist-card {
   pointer-events: none;
   height: 0;
   overflow: hidden;
+  display: block;
 }
 
 .step.active {
   opacity: 1;
   pointer-events: all;
   height: auto;
+  display: block;
 }
 
 /* Spinner */
@@ -148,7 +152,7 @@ input[type="checkbox"]:checked + .playlist-card {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.3);
   padding: 14px 20px;
   display: flex;
   justify-content: space-between;

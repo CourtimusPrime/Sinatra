@@ -7,23 +7,30 @@
     <script defer src="/static/js/onboard.js"></script>
   </head>
 <body>
-  <div class="search-container">
-    <input type="text" id="search-bar" placeholder="Search playlists...">
-  </div>
-  
-  <div class="sort-container">
-    <label for="sort-select">Sort by:</label>
-    <select id="sort-select">
-      <option value="songs-desc">Songs (High → Low)</option>
-      <option value="songs-asc">Songs (Low → High)</option>
-      <option value="name-asc">Name (A → Z)</option>
-      <option value="name-desc">Name (Z → A)</option>
-    </select>
-  </div>
-  
-  <div id="playlist-list" class="playlist-grid"></div>
 
-  <div id="step-2" class="step" style="display:none">
+  <div id="step-1" class="step">
+    <div class="search-container">
+      <input type="text" id="search-bar" placeholder="Search playlists...">
+    </div>
+    
+    <div class="sort-container">
+      <label for="sort-select">Sort by:</label>
+      <select id="sort-select">
+        <option value="songs-desc">Songs (High → Low)</option>
+        <option value="songs-asc">Songs (Low → High)</option>
+        <option value="name-asc">Name (A → Z)</option>
+        <option value="name-desc">Name (Z → A)</option>
+      </select>
+    </div>
+  
+    <div class="bulk-actions">
+      <button id="toggle-select-all">Select All</button>
+    </div>
+  
+    <div id="playlist-list" class="playlist-grid"></div>
+  </div>
+
+  <div id="step-2" class="step">
     <h2>🧑 Is this your name?</h2>
     <p id="current-name"></p>
     <label><input type="radio" name="nameOption" value="keep" checked> Yes</label>
@@ -34,7 +41,7 @@
     <button onclick="nextStep()">Next</button>
   </div>
 
-  <div id="step-3" class="step" style="display:none">
+  <div id="step-3" class="step">
     <h2>🖼️ Your profile picture</h2>
     <img id="profile-pic" src="" width="100" />
     <p>Change it?</p>
@@ -42,7 +49,7 @@
     <button onclick="nextStep()">Next</button>
   </div>
 
-  <div id="step-4" class="step" style="display:none">
+  <div id="step-4" class="step">
     <h2>⏳ Setting things up...</h2>
     <p>Please wait...</p>
     <div class="spinner"></div>
