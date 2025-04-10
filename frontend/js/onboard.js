@@ -13,6 +13,8 @@ let userData = {
   profile_picture: ""
 };
 
+const fallback_picture = "https://media.tenor.com/6BUVtTultLsAAAAM/crash.gif"
+
 const nextBtn = document.getElementById("next-button");
 const listContainer = document.getElementById("playlist-list");
 nextBtn.disabled = true;
@@ -30,10 +32,10 @@ async function fetchUserData() {
   const user = await res.json();
 
   document.getElementById("current-name").textContent = `"${user.display_name}"`;
-  document.getElementById("profile-pic").src = user.profile_picture || "https://www.rollingstone.com/wp-content/uploads/2020/11/alex-trebek-obit.jpg?w=1600&h=900&crop=1";
+  document.getElementById("profile-pic").src = user.profile_picture || fallback_picture;
   console.log("🖼 profile_picture:", user.profile_picture);
   userData.display_name = user.display_name;
-  userData.profile_picture = user.profile_picture || "https://www.rollingstone.com/wp-content/uploads/2020/11/alex-trebek-obit.jpg?w=1600&h=900&crop=1";
+  userData.profile_picture = user.profile_picture || fallback_picture;
 
   const playlistsRes = await fetch(`/playlists?user_id=${userId}`);
   const playlistsData = await playlistsRes.json();
