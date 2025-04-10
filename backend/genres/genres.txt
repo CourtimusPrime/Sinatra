@@ -1,0 +1,204 @@
+{
+"name": "music", 
+"children": [
+    {
+        "name": "rock", 
+        "children": [
+            {
+                "name": "alternative rock",
+                "children": [
+                    {"name": "art punk"},
+                    {"name": "afro punk"},
+                    {"name": "alternative rock"},
+                    {"name": "britpunk"},
+                    {"name": "college rock"},
+                    {"name": "crossover thrash"},
+                    {"name": "crust punk"},
+                    {"name": "experimental rock"},
+                    {"name": "folk punk"},
+                    {
+                        "name": "punk",
+                        "children": [
+                            {"name": "goth"},
+                            {"name": "gothic rock"},
+                            {"name": "emo"}
+                        ]
+                   },
+                    {
+                        "name": "grunge",
+                        "children": [
+                            {"name": "post-grunge"}
+                        ]
+                   }
+                ]
+           }
+        ]
+   },
+    {
+        "name": "anime"
+   }
+]
+}
+"name": "music", 
+"children": [
+    {
+        "name": "alternativ rock", 
+        "children": [
+            {"name":"art punk"},
+            {"name":"afro punk"},
+            {"name":"alternative rock"},
+            {"name":"britpunk"},
+            {"name":"college rock"},
+            {"name":"crossover thrash"},
+            {"name":"crust punk"},
+            {"name":"experimental rock"},
+            {"name":"folk punk"},
+            {"name":"punk", "children": [
+                {"name":"goth"},
+                {"name":"gothic rock"},
+                {"name":"emo"}
+            ]},
+            {"name":"grunge", "children": [
+                {"name":"post-grunge"}
+            ]}
+        ]},
+
+{"name":"electronic","children": [
+    {"name":"glitch hop"},
+    {"name":"glitch pop"},
+    {"name":"hard dance"},
+    {"name":"jackin house"},
+    {"name":"jungle","children":[
+        {"name":"oldschool jungle","children":[
+            {"name":"darkside jungle"},
+            {"name":"ragga jungle"}
+        ]}
+    ]},
+    {"name":"drum and bass","children":[
+        {"name":"darkcore"},
+        {"name":"darkstep"},
+        {"name":"drumfunk"},
+        {"name":"drumstep"},
+        {"name":"hardstep"},
+        {"name":"jump up"},
+        {"name":"liquid funk"},
+        {"name":"neurofunk"},
+        {"name":"raggacore"},
+        {"name":"sambass"},
+        {"name":"techstep"}
+    ]},
+    {"name":"speedcore"},
+    {"name":"techno", "children": [
+        {"name":"acid techno"},
+        {"name":"detroit techno"},
+        {"name":"free tekno"},
+        {"name":"ghettotech"},
+        {"name":"minimal techno"},
+        {"name":"nortec"},
+        {"name":"technopop"}
+    ]},
+    {"name":"trance","children":[
+        {"name":"acid trance"},
+        {"name":"classic trance"},
+        {"name":"dark psy"},
+        {"name":"dream trance"},
+        {"name":"goa trance",
+        "children": [
+            {"name":"dark psytrance"},
+            {"name":"full on goa trance"},
+            {"name":"psybreaks"},
+            {"name":"psyprog"}
+        ]},
+        {"name":"hard trance"},
+        {"name":"progrssive trance"},
+        {"name":"tech trance"},
+        {"name":"uplifting trance",
+        "children":[
+            {"name":"orchestral uplifting"}
+        ]}
+    ]},
+    {"name":"trap"},
+    {"name":"8bit"},
+    {"name":"ambient","children":[
+
+    ]},
+    {"name":"chillwave"},
+    {"name":"crunk"},
+    {"name":"downtempo","children":[
+
+    ]},
+    {"name":"electro","children":[
+    {"name":"crunk"},
+    {"name":"electro backbeat"},
+    {"name":"electro-grime"},
+    {"name":"electro pop"}
+]},
+{"name":"electro-swing"},
+{"name":"electro acoustic"},
+{"name":"electronica","children":[
+    {"name":"berlin school"},
+    {"name":"electronic art music"},
+    {"name":"electronic dance music"},
+    {"name":"folktronica"},
+    {"name":"freestyle music"},
+    {"name":"glitch"},
+    {"name":"idm"},
+    {"name":"laptronica"},
+    {"name":"skweee"},
+    {"name":"soundart"},
+    {"name":"synth core"}
+]},
+    {"name":"dance punk"},
+    {"name":"dance rock"},
+    {"name":"dark wave"},
+    {"name":"electroclash"},
+    {"name":"electronicore"},
+    {"name":"electropunk"},
+    {"name":"ethereal wave"},
+    {"name":"indietronica"},
+    {"name":"new rave"},
+    {"name":"space rock"},
+    {"name":"synth pop"},
+    {"name":"synth punk"}
+]},
+{"name":"eurodance","children":[
+    {"name":"bubblegum dance"},
+    {"name":"turbofolk"}
+]},
+{"name":"hardstyle"}
+]},
+{"name":"electro","children":[
+    {"name":"crunk"},
+    {"name":"electro backbeat"},
+    {"name":"electro-grime"},
+    {"name":"electro pop"}
+]},
+{"name":"electro-swing"},
+{"name":"electro acoustic"},
+{"name":"electronic rock", "children":[
+    {"name":"alternative dance", "children":[
+        {"name":"baggy"},
+        {"name":"madchester"}
+    ]},
+    {"name":"dance punk"},
+    {"name":"dance rock"},
+    {"name":"dark wave"},
+    {"name":"electroclash"},
+    {"name":"electronicore"},
+    {"name":"electropunk"},
+    {"name":"ethereal wave"},
+    {"name":"indietronica"},
+    {"name":"new rave"},
+    {"name":"space rock"},
+    {"name":"synth pop"},
+    {"name":"synth punk"}
+]},
+{"name":"eurodance","children":[
+    {"name":"bubblegum dance"},
+    {"name":"turbofolk"}
+]},
+{"name":"hip hop","children":[
+    {"name":"midwest hip hop","children":[
+    ]},
+]},
+{"name":"indie pop"},
