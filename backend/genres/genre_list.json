@@ -381,6 +381,7 @@
                     "name":"alternative rock",
                     "genres": [
                         {"name":"art punk"},
+                        {"name":"madchester"},
                         {"name":"afro punk"},
                         {"name":"britpunk"},
                         {"name":"college rock"},

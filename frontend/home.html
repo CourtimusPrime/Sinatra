@@ -5,6 +5,7 @@
   <title>Home – Sinatra</title>
   <link rel="stylesheet" href="/static/styles.css">
   <script defer src="/static/js/home.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
   <button onclick="logout()">Log out</button>
@@ -19,6 +20,9 @@
     <button onclick="loadNowPlaying()">🔄 Refresh</button>
   </div>
 
+  <h2>Your Music Taste</h2>
+  <div id="genre-sunburst" style="width:100%;max-width:800px;height:600px;margin:auto;"></div>
+  <p id="genre-summary" style="text-align:center; font-size: 1.2em; margin-top: 20px;"></p>
   <h2>Your Featured Playlists</h2>
   <div id="featured-playlists" class="playlist-grid"></div>
 

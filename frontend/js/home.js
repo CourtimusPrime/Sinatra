@@ -39,10 +39,86 @@ function logout() {
   window.location.href = "/";
 }
 
+async function loadSunburst() {
+  const res = await fetch(`/test-genres?user_id=${userId}`);
+  const data = await res.json();
+  document.getElementById("genre-summary").textContent = data.summary;
+
+  const sunburst = data.sunburst;
+
+  const labels = [];
+  const parents = [];
+  const values = [];
+  const colors = [];
+
+  // Recursive function to flatten the nested sunburst tree
+  function flatten(node, parentName = "", depth = 0) {
+  if (node.name) {
+    labels.push(node.name);
+    parents.push(parentName);
+
+    // Add value
+    if (node.value !== undefined) {
+      values.push(node.value);
+    } else if (!node.children) {
+      values.push(0);
+    }
+
+    // Add color
+    const top = depth === 0 ? node.name
+              : depth === 1 ? node.name
+              : parentName;
+    const colorKey = top.toLowerCase();
+    colors.push(metaGenreColors[colorKey] || "#cccccc");
+  }
+
+  if (node.children) {
+    for (const child of node.children) {
+      flatten(child, node.name, depth + 1);
+    }
+  }
+}
+
+  flatten(sunburst);
+
+  const trace = {
+    type: "sunburst",
+    labels,
+    parents,
+    values,
+    marker: { colors },
+    branchvalues: "total",
+    outsidetextfont: { size: 16, color: "#333" },
+    leaf: { opacity: 0.6 },
+    marker: { line: { width: 2 } }
+  };
+
+  const layout = {
+    margin: { l: 0, r: 0, b: 0, t: 0 },
+    sunburstcolorway: ["#636efa", "#ef553b", "#00cc96", "#ab63fa", "#19d3f3"],
+    extendsunburstcolorway: true
+  };
+
+  Plotly.newPlot("genre-sunburst", [trace], layout);
+}
+
 // Call loadNowPlaying every 30 seconds
 setInterval(loadNowPlaying, 30000);
 
 window.onload = () => {
   loadUser();
   loadNowPlaying();
+  loadSunburst();
+};
+
+const metaGenreColors = {
+  rock: "#ff6f61",
+  pop: "#6b5b95",
+  rnb: "#88b04b",
+  "r&b": "#88b04b",
+  electronic: "#009688",
+  hiphop: "#f7cac9",
+  "hip-hop": "#f7cac9",
+  metal: "#505050",
+  other: "#9e9e9e"
 };

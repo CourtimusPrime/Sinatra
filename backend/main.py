@@ -1,14 +1,22 @@
 # backend/main.py
+
+# -- Imports
 import sys
 import os
+import spotipy
+
+# -- fastAPI
 from fastapi import FastAPI, Depends, Query, HTTPException
 from fastapi.responses import RedirectResponse, JSONResponse
-import spotipy
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# -- backend
 from backend.utils import get_spotify_oauth, get_artist_genres
 from backend.db import users_collection
 from backend.auth import get_token
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from backend.genres import genre_wizard
+
 
 app = FastAPI()
 sp_oauth = get_spotify_oauth()
@@ -312,6 +320,37 @@ def complete_onboarding(data: dict):
         )
 
     return {"status": "ok"}
+
+@app.get("/test-genres")
+def test_genres(user_id: str = Query(...)):
+    access_token = get_token(user_id)
+    sp = spotipy.Spotify(auth=access_token)
+    top_tracks = sp.current_user_top_tracks(limit=50, time_range="short_term")
+
+    artist_genre_cache = {}
+    flat_genres = []
+
+    for track in top_tracks["items"]:
+        genres = get_artist_genres(sp, track["artists"], artist_genre_cache)
+        flat_genres.extend(genres)
+
+    # Process genres
+    freq = genre_wizard.genre_frequency(flat_genres)
+    highest = genre_wizard.genre_highest(freq)
+    paths = [genre_wizard.get_lineage(g) for g in flat_genres]
+    tags = genre_wizard.tag_genre_levels(flat_genres)
+    sunburst = genre_wizard.build_sunburst_tree(freq)
+    summary = genre_wizard.generate_user_summary(freq)
+
+    return {
+        "input": flat_genres,
+        "frequency": freq,
+        "highest": highest,
+        "paths": paths,
+        "tagged": tags,
+        "sunburst": sunburst,
+        "summary": summary
+    }
 
 @app.get("/public-playlist/{playlist_id}")
 def get_public_playlist(playlist_id: str):

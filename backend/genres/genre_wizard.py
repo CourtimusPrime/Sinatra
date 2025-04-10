@@ -1,94 +1,137 @@
 # backend/genres/genre_wizard.py
 
-# Takes flat lists of user genres (from song metadata) and maps them up to a
-# recursive genre ontology, returning a structured frequency tree for
-# sunburst charting. 
+import json
+from collections import defaultdict, Counter
+import os
 
-# The Challenge:
-# 1. The ontology has zeroed values, since they depend on the user input.
-# 2. The genre array triggers incremental frequency propagation up the tree.
-# 3. The output is a recursive genre tree with frequencies, ready for a sun-burst chart.
+def load_genre_hierarchy():
+    filepath = os.path.join(os.path.dirname(__file__), 'genre_list.json')
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
-from collections import defaultdict
+GENRE_TREE = load_genre_hierarchy()
+genre_lineage = {}
 
-def genre_wizard(user_genres, ontology, should_abort=lambda: False):
-    """
-    Builds a recursive frequency tree from user genre data.
+def parse_genres(node, path=None):
+    if path is None:
+        path = []
 
-    Args:
-        user_genres (list of str): Flat list of genres from song metadata.
-        ontology (dict): The genre ontology tree.
-        should_abort (func): Optional callback that returns True if processing should stop (e.g. user disconnected).
+    name = node.get("name")
+    full_path = path + [name]
+    genre_lineage[name] = full_path
 
-    Returns:
-        dict: A recursive genre tree with frequency counts for sunburst charting.
-    """
+    for child in node.get("genres", []):
+        parse_genres(child, full_path)
 
-    def normalize_genre_name(name):
-        return name.strip().lower().replace("–", "-").replace("&", "and")
+# Build lineage map
+for genre in GENRE_TREE.get("genres", []):
+    parse_genres(genre)
 
-    def build_genre_map(node, parent=None, mapping=None):
-        if mapping is None:
-            mapping = {}
+def genre_frequency(genre_inputs, limit=20):
+    if not isinstance(genre_inputs, list):
+        raise ValueError("Expected a list of genres.")
+    frequency_counter = Counter(genre_inputs)
+    top_genres = frequency_counter.most_common(limit)
+    return dict(top_genres)
 
-        name = node["name"]
-        mapping[name] = {
-            "parent": parent,
-            "children": [child["name"] for child in node.get("children", [])]
-        }
+def get_lineage(genre):
+    return genre_lineage.get(genre, ["other", genre])
 
-        for child in node.get("children", []):
-            build_genre_map(child, name, mapping)
+def tag_genre_levels(genre_inputs):
+    result = []
+    for genre in genre_inputs:
+        lineage = get_lineage(genre)
+        level = len(lineage)
+        label = (
+            "meta-genre" if level == 1 else
+            "genre" if level == 2 else
+            "sub-genre" if level == 3 else
+            "micro-genre"
+        )
+        result.append({
+            "genre": genre,
+            "level": level,
+            "tag": label,
+            "lineage": lineage
+        })
+    return result
 
-        return mapping
+def build_sunburst_tree(genre_freq):
+    tree = {"name": "music", "children": []}
 
-    def get_ancestors(genre, genre_map):
-        ancestors = []
-        lineage = set()
-        while genre and genre not in lineage: # Checks remaining genre and checks not in seen
-            lineage.add(genre)
-            parent = genre_map.get(genre, {}).get("parent")
-            if parent:
-                ancestors.append(parent)
-                if parent == "music":
-                    break
-                genre = parent
+    def insert_path(root, path, value):
+        node = root
+        for genre in path[:-1]:
+            # Only search children if node has children
+            if "children" not in node:
+                node["children"] = []
+
+            found = next((child for child in node["children"] if child["name"] == genre), None)
+            if not found:
+                new_node = {"name": genre, "children": []}
+                node["children"].append(new_node)
+                node = new_node
             else:
-                break
+                node = found
 
-        return ancestors[::-1]
+        final_name = path[-1]
+        # Ensure this node can hold children
+        if "children" not in node:
+            node["children"] = []
 
-    def build_frequency_tree(user_genres, ontology):
-        genre_map = build_genre_map(ontology)
-        freq_map = defaultdict(int)
-
-        for genre in user_genres:
-            if should_abort():
-                raise RuntimeError("Genre Wizard aborted: user cancelled the request.")
-
-            norm_genre = normalize_genre_name(genre)
-            if norm_genre in genre_map:
-                for ancestor in get_ancestors(norm_genre, genre_map):
-                    freq_map[ancestor] += 1
+        # Now safely search children
+        existing_leaf = next((child for child in node["children"] if child["name"] == final_name), None)
+        if existing_leaf:
+            if "value" in existing_leaf:
+                existing_leaf["value"] += value
             else:
-                print(f"Unlisted Genre: {genre}")
+                existing_leaf["value"] = value
+        else:
+            node["children"].append({"name": final_name, "value": value})
 
-        def attach_freq(node):
-            if should_abort():
-                raise RuntimeError("Genre Wizard aborted during tree reconstruction.")
+    for genre, freq_val in genre_freq.items():
+        lineage = get_lineage(genre)
+        insert_path(tree, lineage, freq_val)
 
-            name = node["name"]
-            new_node = {
-                "name": name,
-                "value": freq_map.get(name, 0)
-            }
-            if "children" in node:
-                new_node["children"] = [attach_freq(child) for child in node["children"]]
-            return new_node
+    return tree
 
-        return attach_freq(ontology)
+def genre_highest(genre_inputs):
+    if isinstance(genre_inputs, dict):
+        inputs = genre_inputs
+    elif isinstance(genre_inputs, list):
+        inputs = Counter(genre_inputs)
+    else:
+        raise ValueError("genre_inputs must be a list or a dict.")
 
-    return build_frequency_tree(user_genres, ontology)
+    result = defaultdict(int)
 
-# Run sunburst_data = build_frequency_tree(user_genres, GENRE_ONTOLOGY)
-# This gets you a recusive structre with frequency.
+    for genre, count in inputs.items():
+        lineage = genre_lineage.get(genre)
+        if lineage and len(lineage) > 0:
+            top = lineage[0]
+            result[top] += count
+        else:
+            result["other"] += count
+
+    return dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
+
+def generate_user_summary(genre_freq):
+    highest = genre_highest(genre_freq)
+    total = sum(highest.values())
+
+    if not highest or total == 0:
+        return "We couldn’t find enough genre data to summarize your taste 😢"
+
+    top = sorted(highest.items(), key=lambda x: x[1], reverse=True)
+
+    primary = top[0][0]
+    primary_pct = round(top[0][1] / total * 100)
+
+    if len(top) > 1:
+        secondary = top[1][0]
+        secondary_pct = round(top[1][1] / total * 100)
+        detail = f"You also listen to a lot of {secondary} ({secondary_pct}%)."
+    else:
+        detail = ""
+
+    return f"🎧 You mostly listen to {primary} music ({primary_pct}%). {detail}"
