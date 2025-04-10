@@ -7,7 +7,7 @@ import os
 import plotly.graph_objects as go
 
 # --- Load ontology ---
-file_path = os.path.join(os.path.dirname(__file__), "genre-ontology.json")
+file_path = os.path.join(os.path.dirname(__file__), "genre_list.json")
 with open(file_path, "r") as f:
     GENRE_ONTOLOGY = json.load(f)
 
