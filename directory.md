@@ -1,0 +1,54 @@
+# backend/directory.md
+
+/backend
+    /genres
+        __init__.py
+        genre_list.json
+        genre_wizard.py
+    /routes
+        __init__.py
+        genre_routes.py
+        platform_router.py
+        spotify_routes.py
+        tidal_routes.py
+        user_routes.py
+    /tests
+        __init__.py
+        conftest.py
+        test_docs.py
+        test_genres.py
+        test_spotify.py
+    /utils
+        spotify_utils.py
+        tidal_utils.py
+    __init__.py
+    auth.py
+    cleanTitle.py
+    db.py
+    delete_user.py
+    directory.md
+    main.py
+    spotify_utils.py
+    utils.py
+/frontend
+    /js
+        auth.js
+        home.js
+        main.js
+        my_playlists.js
+        onboard.js
+    home.html
+    index.html
+    login.html
+    my_playlists.html
+    onboard.html
+/static
+    default_avatar.png
+    default_cover.jpg
+    spotify.png
+    styles.css
+    tidal.png
+.env
+.gitignore
+.zshrc
+requirements.txt

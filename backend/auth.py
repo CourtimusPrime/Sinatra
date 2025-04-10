@@ -29,3 +29,10 @@ def get_token(user_id: str = Query(...)):
         return refreshed["access_token"]
 
     return user["access_token"]
+
+def build_token_info(user):
+    return {
+        "access_token": user["access_token"],
+        "refresh_token": user["refresh_token"],
+        "expires_at": user["expires_at"]
+    }
