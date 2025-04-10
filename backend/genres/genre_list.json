@@ -1,0 +1,663 @@
+{
+    "name":"music", 
+    "genres": [
+        {
+            "name":"anime"
+        },
+        {
+            "name":"blues",
+            "genres": [
+                {"name":"acoustic blues"},
+                {"name":"blues rock"},
+                {"name":"blues shouter"},
+                {"name":"british blues"},
+                {"name":"canadian blues"},
+                {"name":"chicago blues"},
+                {"name":"classic blues"},
+                {"name":"classic female blues"},
+                {"name":"contemporary blues"},
+                {"name":"country blues"},
+                {"name":"dark blues"},
+                {"name":"delta blues"},
+                {"name":"detroit blues"},
+                {"name":"doom blues"},
+                {"name":"electric blues"},
+                {"name":"folk blues"},
+                {"name":"gospel blues"},
+                {"name":"harmonica blues"},
+                {"name":"hill country blues"},
+                {"name":"jump blues"},
+                {"name":"kansas city blues"},
+                {"name":"louisiana blues"},
+                {"name":"memphis blues"},
+                {"name":"modern blues"},
+                {"name":"new orleans blues"},
+                {"name":"new york blues"},
+                {"name":"piano blues"},
+                {"name":"piedmont blues"},
+                {"name":"punk blues"},
+                {"name":"ragtime blues"},
+                {"name":"rhythm blues"},
+                {"name":"soul blues"},
+                {"name":"st. louis blues"},
+                {"name":"swamp blues"},
+                {"name":"texas blues"},
+                {"name":"urban blues"},
+                {"name":"vaudeville"},
+                {"name":"west coast blues"}
+            ]
+        },
+        {
+            "name":"country",
+            "genres": [
+                {"name":"alternative country"},
+                {"name":"americana"},
+                {"name":"australian country"},
+                {"name":"bakersfield sound"},
+                {
+                    "name":"bluegrass",
+                    "genres": [
+                        {"name":"progressive blues"},
+                        {"name":"reactionary bluegrass"},
+                        {"name":"contemporary bluegrass"},
+                        {"name":"traditional bluegrass"}
+                    ]
+                },
+                {"name":"blues country"},
+                {"name":"cajun fiddle tunes"},
+                {"name":"christian country"},
+                {"name":"classic country"},
+                {"name":"contemporary country"},
+                {"name":"country gospel"},
+                {"name":"country pop"},
+                {"name":"country rap"},
+                {"name":"country rock"},
+                {"name":"country soul"},
+                {"name":"cowboy"},
+                {"name":"western"},
+                {"name":"cowpunk"},
+                {"name":"dansband"},
+                {"name":"honky tonk"},
+                {"name":"franco-country"},
+                {"name":"gulf and western"},
+                {"name":"hellbilly music"},
+                {"name":"instrumental counrtry"},
+                {"name":"lubbock sound"},
+                {"name":"nashville sound"},
+                {"name":"neotraditional country"},
+                {"name":"outlaw country"},
+                {"name":"progressive country"},
+                {"name":"texas country"},
+                {"name":"urban cowboy"},
+                {"name":"western swing"}
+            ]
+        },
+        {
+            "name":"electronic",
+            "genres": [
+                {
+                    "name":"breakbeat",
+                    "genres": [
+                        {"name":"4-beat"},
+                        {"name":"acid breaks"},
+                        {"name":"baltimore club"},
+                        {"name":"big beat"},
+                        {"name":"breakbeat hardcore"},
+                        {"name":"broken beat"},
+                        {"name":"florida breaks"},
+                        {"name":"nu skool breaks"}
+                    ]
+                },
+                {"name":"breakcore"},
+                {"name":"brostep"},
+                {
+                    "name":"electro",
+                    "genres":[
+                        {"name":"electro backbeat"},
+                        {"name":"electro grime"},
+                        {"name":"electro pop"}
+                    ]
+                },
+                {"name":"chillstep"},
+                {"name":"chillwave"},
+                {"name":"crunk"},
+                {
+                    "name":"club",
+                    "genres": [
+                        {"name":"club dance"},
+                        {"name":"club rave"}
+                    ]
+                },
+                {
+                    "name":"drum and bass",
+                    "genres": [
+                        {"name":"darkcore"},
+                        {"name":"darkstep"},
+                        {"name":"drumfunk"},
+                        {"name":"drumstep"},
+                        {"name":"hardstep"},
+                        {"name":"jump up"},
+                        {"name":"liquid funk"},
+                        {"name":"neurofunk"},
+                        {"name":"raggacore"},
+                        {"name":"sambass"},
+                        {"name":"techstep"}
+                    ]
+                },
+                {
+                    "name":"dubstep",
+                    "genres": [
+                        {"name":"liquid dub"},
+                        {"name":"regstep"}
+                    ]
+                },
+                {
+                    "name":"downtempo",
+                    "genres":[
+                        {"name":"acid jazz"},
+                        {"name":"balearic beat"},
+                        {"name":"chill out"},
+                        {"name":"dub music"},
+                        {"name":"dubtronica"},
+                        {"name":"ethnic electronica"},
+                        {"name":"moombahton"},
+                        {"name":"trip hop"}
+                    ]
+                },
+                {"name":"electronic swing"},
+                {
+                    "name":"garage",
+                    "genres": [
+                        {"name":"future garage"},
+                        {"name":"us garage"},
+                        {
+                            "name":"uk garage",
+                            "genres": [
+                                {"name":"2-step"},
+                                {"name":"4x4"},
+                                {"name":"bassline"},
+                                {"name":"grime"},
+                                {"name":"speed garage"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name":"electronica",
+                    "genres":[
+                        {"name":"berlin school"},
+                        {"name":"electronic art music"},
+                        {"name":"electronic dance music"},
+                        {"name":"folktronica"},
+                        {"name":"freestyle music"},
+                        {"name":"glitch"},
+                        {"name":"idm"},
+                        {"name":"laptronica"},
+                        {"name":"skweee"},
+                        {"name":"soundart"},
+                        {"name":"synth core"}
+                    ]
+                },
+                {"name":"glitch hop"},
+                {"name":"glitch pop"},
+                {"name":"hard dance"},
+                {"name":"jackin house"},
+                {
+                    "name":"jungle",
+                    "genres": [
+                        {
+                            "name":"oldschool jungle",
+                            "genres": [
+                                {"name":"darkside jungle"},
+                                {"name":"ragga jungle"}
+                            ]
+                        }
+                    ]
+                },
+                {"name":"speedcore"},
+                {
+                    "name":"techno",
+                    "genres": [
+                        {"name":"acid techno"},
+                        {"name":"detroit techno"},
+                        {"name":"free tekno"},
+                        {"name":"ghettotech"},
+                        {"name":"minimal techno"},
+                        {"name":"nortec"},
+                        {"name":"technopop"}
+                    ]
+                },
+                {
+                    "name":"trance",
+                    "genres": [
+                        {"name":"acid trance"},
+                        {"name":"classic trance"},
+                        {"name":"dark psy"},
+                        {"name":"dream trance"},
+                        {
+                            "name":"goa trance",
+                            "genres":[
+                                {"name":"dark psytrance"},
+                                {"name":"full on goa trance"},
+                                {"name":"psybreaks"},
+                                {"name":"psyprog"}
+                            ]
+                        },
+                        {"name":"hard trance"},
+                        {"name":"progrssive trance"},
+                        {"name":"tech trance"},
+                        {"name":"uplifting trance"}
+                    ]
+                },
+                {"name":"trap"},
+                {"name":"8bit"},
+                {
+                    "name":"ambient",
+                    "genres":[
+                        {"name":"ambient dub"},
+                        {"name":"ambient house"},
+                        {"name":"ambient techno"},
+                        {"name":"dark ambient"},
+                        {"name":"drone ambient"},
+                        {"name":"illbient"},
+                        {"name":"isolationism"},
+                        {"name":"lowercase"}
+                    ]
+                },
+                {
+                    "name":"house",
+                    "genres": [
+                        {"name":"deep house"},
+                        {"name":"electo house"},
+                        {"name":"electronica house"},
+                        {"name":"ghost house"},
+                        {"name":"jazz house"},
+                        {"name":"spooky house"},
+                        {"name":"spooky funk house"},
+                        {"name":"spooky rock house"},
+                        {"name":"fun house"},
+                        {"name":"acid house"},
+                        {"name":"chicago house"},
+                        {"name":"dutch house"},
+                        {"name":"freestyle house"},
+                        {"name":"funk house"},
+                        {"name":"ghetto house"},
+                        {"name":"hard house"},
+                        {"name":"hip house"},
+                        {"name":"minimal house"},
+                        {
+                            "name":"progressive house",
+                            "genres": [
+                                {"name":"disco house"},
+                                {"name":"dream house"},
+                                {"name":"space house"},
+                                {"name":"japanese house"},
+                                {"name":"bounce house"},
+                                {"name":"bouncy house"},
+                                {"name":"scouse house"}
+                            ]
+                        },
+                        {"name":"swing house"},
+                        {"name":"tech house"},
+                        {"name":"tribal house"},
+                        {"name":"tropical house"},
+                        {"name":"uk hard house"},
+                        {"name":"vocal house"}
+                    ]
+                },
+                {
+                    "name":"vaporwave",
+                    "genres": [
+                        {"name":"hypnagogic"},
+                        {"name":"vektroid"},
+                        {"name":"mallsoft"},
+                        {"name":"vaporhop"},
+                        {"name":"protovapor"}
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"pop",
+            "genres":[
+                {"name":"adult contemporary"},
+                {"name":"alternative pop"},
+                {"name":"alternative pop rock"},
+                {"name":"antiviral pop"},
+                {"name":"acoustic pop"},
+                {"name":"arab pop"},
+                {"name":"baroque"},
+                {"name":"britpop"},
+                {"name":"bubblegum pop"},
+                {"name":"chamber pop"},
+                {"name":"chanson"},
+                {"name":"christian pop"},
+                {"name":"dance pop"},
+                {"name":"dream pop"},
+                {"name":"jangle pop"},
+                {"name":"levenslied"},
+                {"name":"louisiana swamp pop"},
+                {"name":"mexican pop"},
+                {"name":"pop rap"},
+                {"name":"pop rock"},
+                {"name":"pop punk"},
+                {"name":"power pop"},
+                {"name":"psychedelic pop"},
+                {"name":"schlager"},
+                {"name":"space age pop"},
+                {"name":"sunshine pop"},
+                {"name":"surf pop"},
+                {"name":"vispop"}
+            ]
+        },
+        {
+            "name":"dance",
+            "genres":[
+                {"name":"dance punk"},
+                {"name":"dance rock"},
+                {"name":"dark wave"},
+                {"name":"electroclash"},
+                {"name":"electronicore"},
+                {"name":"electropunk"},
+                {"name":"ethereal wave"},
+                {"name":"indietronica"},
+                {"name":"new rave"},
+                {"name":"space rock"},
+                {"name":"synth pop"},
+                {"name":"synth punk"},
+                {
+                    "name":"eurodance",
+                    "genres":[
+                        {"name":"bubblegum dance"},
+                        {"name":"turbofolk"}
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"rock", 
+            "genres": [
+                {
+                    "name":"alternative rock",
+                    "genres": [
+                        {"name":"art punk"},
+                        {"name":"afro punk"},
+                        {"name":"britpunk"},
+                        {"name":"college rock"},
+                        {"name":"crossover thrash"},
+                        {"name":"crust punk"},
+                        {"name":"experimental rock"},
+                        {"name":"folk punk"},
+                        {
+                            "name":"punk",
+                            "genres": [
+                                {"name":"goth"},
+                                {"name":"gothic rock"},
+                                {"name":"emo"}
+                            ]
+                        },
+                        {
+                            "name":"grunge",
+                            "genres": [
+                                {"name":"post-grunge"}
+                            ]
+                        }
+                    ]
+                },
+                {"name":"industrial"},
+                {"name":"noise rock"},
+                {
+                    "name":"metal",
+                    "genres": [
+                        {"name":"black metal"},
+                        {"name":"rap metal"},
+                        {"name":"alternative metal"},
+                        {"name":"nu metal"},
+                        {"name":"death metal"},
+                        {"name":"deathcore"},
+                        {"name":"djent"},
+                        {"name":"doom metal"},
+                        {"name":"drone"},
+                        {"name":"folk metal"},
+                        {"name":"glam metal"},
+                        {"name":"gothic metal"},
+                        {"name":"grindcore"},
+                        {"name":"groove metal"},
+                        {"name":"hair metal"},
+                        {"name":"hardcore metal"},
+                        {"name":"hard metal"},
+                        {"name":"heavy metal"},
+                        {"name":"industrial metal"},
+                        {"name":"kawaii metal"},
+                        {"name":"math metal"},
+                        {"name":"mathcore"},
+                        {"name":"metalcore"},
+                        {"name":"modern metal"},
+                        {"name":"neoclassical metal"},
+                        {"name":"nu metal"},
+                        {"name":"pagan metal"},
+                        {"name":"pirate metal"},
+                        {"name":"post hardcore"},
+                        {"name":"post metal"},
+                        {"name":"power metal"},
+                        {"name":"progressive metal"},
+                        {"name":"sludge"},
+                        {"name":"speed metal"},
+                        {"name":"stoner metal"},
+                        {"name":"symphonic metal"},
+                        {"name":"technical death metal"},
+                        {"name":"thrash metal"},
+                        {"name":"viking metal"}
+                    ]
+                },
+                {"name":"art rock"},
+                {"name":"arena rock"},
+                {"name":"album rock"},
+                {"name":"british invasion"},
+                {"name":"british rock"},
+                {"name":"rock blues"},
+                {"name":"cock rock"},
+                {"name":"glam rock"},
+                {"name":"math rock"},
+                {"name":"post rock"},
+                {"name":"progressive rock"},
+                {"name":"rock and roll"},
+                {"name":"rockabilly"},
+                {"name":"roots rock"},
+                {"name":"southern rock"},
+                {"name":"stoner rock"},
+                {"name":"surf rock"},
+                {"name":"yacht rock"},
+                {"name":"classic rock"},
+                {"name":"soft rock"},
+                {
+                    "name":"acid rock",
+                    "genres": [
+                        {"name":"psychedelic rock"}
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"hip-hop",
+            "genres":[
+                {"name":"chap hop"},
+                {"name":"christian hip hop"},
+                {"name":"conscious hip hop"},
+                {"name":"grunk"},
+                {"name":"crunkcore"},
+                {"name":"dirty south"},
+                {
+                    "name":"rap",
+                    "genres":[
+                        {"name":"alternative rap"},
+                        {"name":"old school rap"},
+                        {"name":"underground rap"},
+                        {"name":"west coast rap"}
+                    ]
+                },
+                {
+                    "name":"east coast hip hop",
+                    "genres":[
+                        {"name":"brick city club"},
+                        {"name":"hardcore hip hop"},
+                        {"name":"mafioso rap"},
+                        {"name":"new jersey hip hop"}
+                    ]
+                },
+                {"name":"freestyle rap"},
+                {"name":"g-funk"},
+                {"name":"gangster rap"},
+                {"name":"hip pop"},
+                {"name":"industrial hip hop"},
+                {"name":"instrumental hip hop"},
+                {"name":"jazz rap"},
+                {"name":"low bap"},
+                {"name":"lyrical hip hop"},
+                {
+                    "name":"midwest hip hop",
+                    "genres":[
+                        {"name":"chicago hip hop"},
+                        {"name":"detroit hip hop"},
+                        {"name":"st. louis hip hop"},
+                        {"name":"twin cities hip hop"}
+                    ]
+                },
+                {"name":"new jack swing"},
+                {"name":"new school hip hop"},
+                {"name":"turntablism"}
+            ]
+        },
+        {
+            "name":"folk",
+            "genres":[
+                {"name":"alternative folk"},
+                {"name":"contemporary folk"},
+                {"name":"indie folk"},
+                {"name":"folk rock"},
+                {"name":"traditional folk"},
+                {"name":"american folk revival"},
+                {"name":"anti-folk"},
+                {"name":"british folk revival"},
+                {"name":"filk music"},
+                {"name":"freak folk"},
+                {"name":"industrial folk"},
+                {"name":"neofolk"},
+                {"name":"progressive folk"},
+                {"name":"psychadelic folk"},
+                {"name":"techno-folk"}
+            ]
+        },
+        {
+            "name":"classical",
+            "genres":[
+                {"name":"avant-garde"},
+                {"name":"ballet"},
+                {"name":"cantata"},
+                {"name":"string quartet"},
+                {"name":"chant"},
+                {"name":"choral"},
+                {"name":"concerto"},
+                {"name":"concerto grosso"},
+                {"name":"contemporary classical"},
+                {"name":"expressionist"},
+                {"name":"high classical"},
+                {"name":"modern composition"},
+                {"name":"modern classical"},
+                {"name":"opera"},
+                {"name":"orchestral"},
+                {"name":"organum"},
+                {"name":"renaissance"},
+                {"name":"sonata"},
+                {"name":"symphonic"},
+                {"name":"symphony"}
+            ]
+        },
+        {
+            "name":"jazz",
+            "genres":[
+                {"name":"afro-cuban jazz"},
+                {"name":"bebop"},
+                {"name":"big band"},
+                {"name":"blue note"},
+                {"name":"british dance band"},
+                {"name":"cape jazz"},
+                {"name":"chamber jazz"},
+                {"name":"contemporary jazz"},
+                {"name":"cool jazz"},
+                {"name":"crossover jazz"},
+                {"name":"dark jazz"},
+                {"name":"dixieland"},
+                {"name":"early jazz"},
+                {"name":"ethio jazz"},
+                {"name":"ethno jazz"},
+                {"name":"european free jazz"},
+                {"name":"funk jazz"},
+                {"name":"free jazz"},
+                {"name":"fusion"},
+                {"name":"gypsy jazz"},
+                {
+                    "name":"bop",
+                    "genres":[
+                        {"name":"hard bop"},
+                        {"name":"neo bop"},
+                        {"name":"post bop"}
+                    ]
+                },
+                {"name":"indo jazz"},
+                {"name":"jazz fusion"},
+                {"name":"jazz rock"},
+                {"name":"kansas city jazz"},
+                {"name":"modal jazz"},
+                {"name":"neo-swing"},
+                {"name":"nu jazz"},
+                {"name":"punk jazz"},
+                {"name":"ragtime jazz"},
+                {"name":"ska jazz"},
+                {"name":"smooth jazz"},
+                {"name":"soul jazz"},
+                {"name":"swing jazz"},
+                {"name":"straight-ahead jazz"},
+                {"name":"trad jazz"},
+                {"name":"third stream"},
+                {"name":"west coast jazz"}
+            ]
+        },
+        {
+            "name":"r&b",
+            "genres":[
+                {"name":"contemporary r&b"},
+                {"name":"disco"},
+                {"name":"funk"},
+                {
+                    "name":"soul",
+                    "genres":[
+                        {"name":"modern soul"},
+                        {"name":"neo-soul"},
+                        {"name":"northern soul"},
+                        {"name":"psychadelic soul"},
+                        {"name":"southern soul"}
+                    ]
+                },
+                {"name":"motown"},
+                {"name":"quiet storm"}
+            ]
+        },
+        {
+            "name":"reggae",
+            "genres":[
+                {"name":"roots reggae"},
+                {"name":"reggae fusion"},
+                {
+                    "name":"raggamuffin",
+                    "genres":[
+                        {"name":"ragga"},
+                        {"name":"dancehall raggamuffin"}
+                    ]
+                },
+                {"name":"ska"},
+                {"name":"rocksteady"}
+            ]
+        }
+    ]
+}

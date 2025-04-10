@@ -25,7 +25,7 @@ def genre_wizard(user_genres, ontology, should_abort=lambda: False):
     """
 
     def normalize_genre_name(name):
-        return name.strip().lower()
+        return name.strip().lower().replace("–", "-").replace("&", "and")
 
     def build_genre_map(node, parent=None, mapping=None):
         if mapping is None:
@@ -44,9 +44,18 @@ def genre_wizard(user_genres, ontology, should_abort=lambda: False):
 
     def get_ancestors(genre, genre_map):
         ancestors = []
-        while genre:
-            ancestors.append(genre)
-            genre = genre_map.get(genre, {}).get("parent")
+        lineage = set()
+        while genre and genre not in lineage: # Checks remaining genre and checks not in seen
+            lineage.add(genre)
+            parent = genre_map.get(genre, {}).get("parent")
+            if parent:
+                ancestors.append(parent)
+                if parent == "music":
+                    break
+                genre = parent
+            else:
+                break
+
         return ancestors[::-1]
 
     def build_frequency_tree(user_genres, ontology):
@@ -62,7 +71,7 @@ def genre_wizard(user_genres, ontology, should_abort=lambda: False):
                 for ancestor in get_ancestors(norm_genre, genre_map):
                     freq_map[ancestor] += 1
             else:
-                print(f"Unknown Genre: {genre}")
+                print(f"Unlisted Genre: {genre}")
 
         def attach_freq(node):
             if should_abort():

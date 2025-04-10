@@ -343,7 +343,7 @@ def serve_my_playlists():
 def get_flat_user_genres(
     access_token: str = Depends(get_token),
     time_range: str = "short_term",  # "short_term" = past 4 weeks
-    limit: int = 100
+    limit: int = 50
 ):
     sp = spotipy.Spotify(auth=access_token)
     top_tracks = sp.current_user_top_tracks(limit=limit, time_range=time_range)
