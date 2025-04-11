@@ -62,7 +62,8 @@ def build_sunburst_tree(genre_freq):
     def insert_path(root, path, value):
         node = root
         for genre in path[:-1]:
-            # Only search children if node has children
+            node["value"] = node.get("value", 0) + value  # 👈 Add this line to accumulate up the tree
+
             if "children" not in node:
                 node["children"] = []
 
@@ -75,6 +76,16 @@ def build_sunburst_tree(genre_freq):
                 node = found
 
         final_name = path[-1]
+        if "children" not in node:
+            node["children"] = []
+
+        existing_leaf = next((child for child in node["children"] if child["name"] == final_name), None)
+        if existing_leaf:
+            existing_leaf["value"] = existing_leaf.get("value", 0) + value
+        else:
+            node["children"].append({"name": final_name, "value": value})
+
+        final_name = path[-1]
         # Ensure this node can hold children
         if "children" not in node:
             node["children"] = []
@@ -82,10 +93,7 @@ def build_sunburst_tree(genre_freq):
         # Now safely search children
         existing_leaf = next((child for child in node["children"] if child["name"] == final_name), None)
         if existing_leaf:
-            if "value" in existing_leaf:
-                existing_leaf["value"] += value
-            else:
-                existing_leaf["value"] = value
+            node["value"] = node.get("value", 0) + value
         else:
             node["children"].append({"name": final_name, "value": value})
 
