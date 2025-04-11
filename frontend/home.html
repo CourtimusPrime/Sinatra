@@ -1,31 +1,61 @@
-<!--frontend/home.html-->
+<!-- frontend/home.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Home – Sinatra</title>
-  <link rel="stylesheet" href="/static/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/styles.css" />
   <script defer src="/static/js/home.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
-  <button onclick="logout()">Log out</button>
-  <h1>🎧 Welcome, <span id="user-name">...</span></h1>
-  <img id="profile-pic" src="" width="100" />
-  
-  <h2>Now Playing:</h2>
-  <div id="now-playing">
-    <p id="track-name">No track playing</p>
-    <img id="track-art" src="" width="100" />
-    <br>
-    <button onclick="loadNowPlaying()">🔄 Refresh</button>
-  </div>
+  <nav class="top-nav">
+    <button onclick="logout()" class="btn btn-logout">Log out</button>
+  </nav>
 
-  <h2>Your Music Taste</h2>
-  <div id="genre-sunburst" style="width:100%;max-width:800px;height:600px;margin:auto;"></div>
-  <p id="genre-summary" style="text-align:center; font-size: 1.2em; margin-top: 20px;"></p>
-  <h2>Your Featured Playlists</h2>
-  <div id="featured-playlists" class="playlist-grid"></div>
+  <!-- Global Header -->
+  <header class="page-header">
+    <img id="profile-pic" src="" alt="Profile picture" width="100" />
+    <h1><span id="user-name">...</span></h1>
+  </header>
 
+  <!-- Main content of the page -->
+  <main>
+    <!-- Now Playing Section -->
+    <section id="now-playing">
+      <div class="now-playing-card">
+        <img id="track-art" src="/static/default-cover.jpg" alt="Album art" class="now-playing-bg" />
+    
+        <div class="now-playing-overlay">
+          <div class="now-playing-meta">
+            <div class="recent-label">🎧 Recently Played</div>
+            <div id="recent-title" class="recent-title">—</div>
+            <div id="recent-artist" class="recent-artist">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Genre Sunburst -->
+    <section style="text-align: center;">
+      <h2>Your Music Taste</h2>
+      <div id="genre-sunburst" style="width:100%; max-width:800px; height:600px; margin:auto;"></div>
+      <p id="genre-summary" style="font-size: 1.2em; margin-top: 20px;"></p>
+    </section>
+
+    <!-- Featured Playlists -->
+    <section>
+      <h2 style="text-align: center;">Your Featured Playlists</h2>
+      <div id="featured-playlists" class="playlist-grid"></div>
+      <div style="text-align: center; margin-top: 20px;">
+        <button onclick="window.location.href='/my-playlists'">Browse All My Playlists</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Playlist Modal -->
   <div id="playlist-modal" class="modal hidden">
     <div class="modal-content">
       <span id="close-modal">&times;</span>
@@ -33,7 +63,10 @@
       <div id="modal-tracks"></div>
     </div>
   </div>
-  <button onclick="window.location.href='/my-playlists'">Browse All My Playlists</button>
-<script src="/static/js/main.js"></script>
+
+  <script src="/static/js/main.js"></script>
 </body>
+<footer class="site-footer">
+  <p>A 2025 project by Court & Andrei</p>
+</footer>
 </html>

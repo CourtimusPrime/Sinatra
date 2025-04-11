@@ -26,11 +26,22 @@ async function loadUser() {
   }
 }
 
+
 async function loadNowPlaying() {
   const playback = await fetch(`/playback?user_id=${userId}`).then(r => r.json());
+
   if (playback.playback && playback.playback.track) {
-    document.getElementById("track-name").textContent = playback.playback.track.name + " – " + playback.playback.track.artist;
-    document.getElementById("track-art").src = playback.playback.track.album_art_url || "/static/default-cover.jpg";
+    const track = playback.playback.track;
+    
+    const titleEl = document.getElementById("recent-title");
+    const artistEl = document.getElementById("recent-artist");
+    const artEl = document.getElementById("track-art");
+    const updatedEl = document.getElementById("last-updated");
+
+    if (titleEl) titleEl.textContent = track.name || "Nothing playing";
+    if (artistEl) artistEl.textContent = track.artist || "-";
+    if (artEl) artEl.src = track.album_art_url || "/static/default-cover.jpg";
+    if (updatedEl) updatedEl.textContent = `Updated at ${new Date().toLocaleTimeString()}`;
   }
 }
 
@@ -103,7 +114,7 @@ async function loadSunburst() {
 }
 
 // Call loadNowPlaying every 30 seconds
-setInterval(loadNowPlaying, 30000);
+setInterval(loadNowPlaying, 28000);
 
 window.onload = () => {
   loadUser();

@@ -5,8 +5,14 @@ body {
   background-size: 600% 600%;
   animation: gradientShift 20s ease infinite;
   color: white;
+  font-size: 1rem;
   margin: 0;
-  padding-bottom: 100px; /* space for fixed bar */
+  padding: 8px;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
 }
 
 @keyframes gradientShift {
@@ -18,11 +24,9 @@ body {
 /* Playlist Grid */
 .playlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 16px 0;
   width: 100%;
 }
 
@@ -31,13 +35,15 @@ body {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(14px);
   border-radius: 16px;
-  padding: 12px;
+  padding: 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 2px solid transparent;
   cursor: pointer;
+  text-align: center;
 }
 
 .playlist-card:hover {
@@ -58,8 +64,8 @@ body {
 }
 
 .playlist-info {
-  text-align: left;
-  flex: 1;
+  text-align: center;
+  width: 100%;
 }
 
 .playlist-name {
@@ -87,13 +93,13 @@ input[type="checkbox"]:checked + .playlist-card {
 /* Search + Sort UI */
 .search-container,
 .sort-container {
-  padding: 10px 20px;
-  max-width: 600px;
+  padding: 10px 0;
   margin: 0 auto;
   display: flex;
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 #search-bar {
@@ -102,7 +108,7 @@ input[type="checkbox"]:checked + .playlist-card {
   border-radius: 8px;
   border: none;
   font-size: 1rem;
-  max-width: 300px;
+  max-width: 100%;
 }
 
 #sort-select {
@@ -131,6 +137,14 @@ input[type="checkbox"]:checked + .playlist-card {
   display: block;
 }
 
+#profile-pic {
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
+  margin: 10px auto;
+  display: block;
+}
+
 /* Spinner */
 .spinner {
   margin: 1rem auto;
@@ -155,11 +169,13 @@ input[type="checkbox"]:checked + .playlist-card {
   background: rgba(0, 0, 0, 0.3);
   padding: 14px 20px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   color: white;
   backdrop-filter: blur(12px);
   z-index: 1000;
+  gap: 10px;
 }
 
 #selected-count {
@@ -188,21 +204,118 @@ input[type="checkbox"]:checked + .playlist-card {
   background-color: #169c42;
 }
 
-/* Responsive Fallback */
-@media (max-width: 500px) {
+/* Larger screen enhancements */
+@media (min-width: 768px) {
+  .playlist-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
   .playlist-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
   }
 
   .playlist-info {
-    text-align: center;
+    text-align: left;
   }
 
   #onboarding-footer {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
   }
+}
+
+.recent-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  font-size: 0.9rem;
+  border-radius: 0 0 16px 16px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 0; /* optional: prevent extra space */
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn-logout {
+  margin-top: 10px;
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+.now-playing-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  height: 160px;
+  margin: 16px auto;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.now-playing-bg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  filter: blur(2px) brightness(0.7);
+  z-index: 1;
+}
+
+.now-playing-overlay {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px;
+  color: white;
+}
+
+.now-playing-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recent-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.recent-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.recent-artist {
+  font-size: 1rem;
+  color: #ccc;
 }
