@@ -105,12 +105,16 @@ async function loadSunburst() {
   };
 
   const layout = {
-    margin: { l: 0, r: 0, b: 0, t: 0 },
+    margin: { t: 0, r: 0, b: 0, l: 0 }, // fix duplicated t
     sunburstcolorway: ["#636efa", "#ef553b", "#00cc96", "#ab63fa", "#19d3f3"],
-    extendsunburstcolorway: true
+    extendsunburstcolorway: true,
+    paper_bgcolor: "rgba(0,0,0,0)",  // ← make background transparent
+    plot_bgcolor: "rgba(0,0,0,0)"   // ← make plot area transparent
   };
 
-  Plotly.newPlot("genre-sunburst", [trace], layout);
+  Plotly.newPlot("genre-sunburst", [trace], layout, {
+    displayModeBar: false  // disables the floating toolbar
+  });
 }
 
 // Call loadNowPlaying every 30 seconds
