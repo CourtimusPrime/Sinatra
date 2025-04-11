@@ -10,7 +10,8 @@ let userData = {
   user_id: userId,
   playlist_ids: [],
   display_name: "",
-  profile_picture: ""
+  profile_picture: "",
+  featured_playlists: []
 };
 
 const fallback_picture = "https://media.tenor.com/6BUVtTultLsAAAAM/crash.gif"
@@ -155,7 +156,18 @@ function nextStep() {
       alert("Please select at least one playlist.");
       return;
     }
-    advance();
+  
+    prepareFeaturedStep();
+    advance(); // Goes to step-1-featured
+    return;
+  }
+  
+  if (currentStep === 1) {
+    if (userData.featured_playlists.length !== 3) {
+      alert("Please select exactly 3 featured playlists.");
+      return;
+    }
+    advance(); // goes to name step
     return;
   }
 
@@ -223,7 +235,10 @@ function maybeSubmitOnboarding() {
   fetch("/complete-onboarding", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData)
+    body: JSON.stringify({
+      ...userData,
+      featured_playlists: userData.featured_playlists
+    })
   })
     .then(res => {
       if (!res.ok) throw new Error("Failed to complete onboarding");
@@ -240,6 +255,54 @@ function maybeSubmitOnboarding() {
       alert("Something went wrong while saving your profile. Please try again.");
       nextBtn.disabled = false;
     });
+}
+
+function prepareFeaturedStep() {
+  const container = document.getElementById("featured-playlist-list");
+  container.innerHTML = "";
+  userData.featured_playlists = [];
+
+  const selected = userData.playlist_ids;
+  document.getElementById("total-selected-count").textContent = selected.length;
+
+  selected.forEach(pid => {
+    const origCard = document.getElementById(`checkbox-${pid}`).closest(".playlist-card");
+    const clone = origCard.cloneNode(true);
+    const checkbox = clone.querySelector("input[type='checkbox']");
+    checkbox.checked = false;
+
+    checkbox.addEventListener("click", e => {
+      e.stopPropagation();
+      handleFeaturedSelection(pid, checkbox.checked, clone);
+    });
+
+    clone.addEventListener("click", () => {
+      checkbox.checked = !checkbox.checked;
+      handleFeaturedSelection(pid, checkbox.checked, clone);
+    });
+
+    container.appendChild(clone);
+  });
+}
+
+function handleFeaturedSelection(id, isChecked, cardEl) {
+  if (isChecked && userData.featured_playlists.length >= 3) {
+    alert("Only 3 featured playlists allowed.");
+    cardEl.querySelector("input").checked = false;
+    return;
+  }
+
+  cardEl.classList.toggle("checked", isChecked);
+
+  if (isChecked) {
+    userData.featured_playlists.push(id);
+  } else {
+    userData.featured_playlists = userData.featured_playlists.filter(pid => pid !== id);
+  }
+
+  const count = userData.featured_playlists.length;
+  document.getElementById("featured-count").textContent = `${count} of 3 selected`;
+  document.getElementById("featured-next-button").disabled = count !== 3;
 }
 
 document.querySelectorAll('input[name="nameOption"]').forEach(opt => {

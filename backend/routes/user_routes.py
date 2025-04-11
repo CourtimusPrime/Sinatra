@@ -14,12 +14,12 @@ def get_current_user(access_token: str = Depends(get_token), user_id: str = Quer
     mongo_user = users_collection.find_one({"user_id": user["id"]})
 
     return {
-        "user_id": user["id"],
-        "display_name": user["display_name"],
-        "email": user["email"],
-        "profile_picture": user["images"][0]["url"] if user.get("images") else None,
-        "important_playlists": mongo_user.get("important_playlists", []) if mongo_user else []
-    }
+    "user_id": user["id"],
+    "display_name": user["display_name"],
+    "email": user["email"],
+    "profile_picture": user["images"][0]["url"] if user.get("images") else None,
+    "featured_playlists": mongo_user.get("featured_playlists", []) if mongo_user else []
+}
 
 @router.get("/users", tags=["User"], summary="Get list of all users")
 def get_users():
@@ -90,6 +90,7 @@ def complete_onboarding(data: dict):
             "display_name": data["display_name"],
             "profile_picture": data["profile_picture"],
             "important_playlists": data["playlist_ids"],
+            "featured_playlists": data.get("featured_playlists", []),
             "onboarded": True
         }}
     )
@@ -102,3 +103,8 @@ def complete_onboarding(data: dict):
         )
 
     return {"status": "ok"}
+
+@router.get("/has-completed-onboarding", tags=["User"], summary="Check if user completed onboarding")
+def has_completed_onboarding(user_id: str = Query(...)):
+    user = users_collection.find_one({"user_id": user_id}, {"_id": 0, "onboarded": 1})
+    return {"completed": user.get("onboarded", False) if user else False}
