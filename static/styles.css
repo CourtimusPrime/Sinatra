@@ -319,3 +319,10 @@ input[type="checkbox"]:checked + .playlist-card {
   font-size: 1rem;
   color: #ccc;
 }
+
+#genre-sunburst {
+  width: 100%;
+  height: 100vh;
+  max-height: 600px;
+  position: relative;
+}

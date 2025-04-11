@@ -6,10 +6,12 @@ from backend.auth import get_token
 from backend.genres import genre_wizard
 from backend.utils import get_artist_genres
 
+from backend.genres.chart import to_sunburst_format, to_bubble_format
+
 router = APIRouter()
 
-@router.get("/test-genres")
-def test_genres(user_id: str = Query(...)):
+@router.get("/genres")
+def get_genres(user_id: str = Query(...)):
     access_token = get_token(user_id)
     sp = spotipy.Spotify(auth=access_token)
     top_tracks = sp.current_user_top_tracks(limit=50, time_range="short_term")
@@ -35,6 +37,8 @@ def test_genres(user_id: str = Query(...)):
         "paths": paths,
         "tagged": tags,
         "sunburst": sunburst,
+        "sunburst_flat": to_sunburst_format(sunburst),
+        "bubble": to_bubble_format(freq),
         "summary": summary
     }
 
