@@ -247,8 +247,12 @@ input[type="checkbox"]:checked + .playlist-card {
 }
 
 .page-header {
+  display: flex;
+  flex-direction: column; /* 👈 this makes the magic happen */
+  align-items: center;     /* center horizontally */
+  gap: 0.5rem;
+  margin-bottom: 0;
   text-align: center;
-  margin-bottom: 0; /* optional: prevent extra space */
 }
 
 .btn {
@@ -263,6 +267,14 @@ input[type="checkbox"]:checked + .playlist-card {
   background-color: transparent;
   border: 2px solid white;
   color: white;
+}
+
+h1 {
+  margin: 0;
+}
+
+.page-header h1 {
+  margin: 0;
 }
 
 .now-playing-card {
