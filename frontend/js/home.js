@@ -40,66 +40,78 @@ function logout() {
 }
 
 async function loadSunburst() {
-  const res = await fetch(`/test-genres?user_id=${userId}`);
-  const data = await res.json();
-  document.getElementById("genre-summary").textContent = data.summary;
+  try {
+    const res = await fetch(`/genres?user_id=${userId}`);
+    const data = await res.json();
 
-  const sunburst = data.sunburst;
-
-  const labels = [];
-  const parents = [];
-  const values = [];
-  const colors = [];
-
-  // Recursive function to flatten the nested sunburst tree
-  function flatten(node, parentName = "", depth = 0) {
-  if (node.name) {
-    labels.push(node.name);
-    parents.push(parentName);
-
-    // Add value
-    if (node.value !== undefined) {
-      values.push(node.value);
-    } else if (!node.children) {
-      values.push(0);
+    if (!data.sunburst) {
+      console.error("Sunburst data is missing:", data);
+      return;
     }
 
-    // Add color
-    const top = depth === 0 ? node.name
-              : depth === 1 ? node.name
-              : parentName;
-    const colorKey = top.toLowerCase();
-    colors.push(metaGenreColors[colorKey] || "#cccccc");
-  }
+    document.getElementById("genre-summary").textContent = data.summary;
 
-  if (node.children) {
-    for (const child of node.children) {
-      flatten(child, node.name, depth + 1);
+    const sunburst = data.sunburst;
+
+    const labels = [];
+    const parents = [];
+    const values = [];
+    const colors = [];
+
+    function flatten(node, parentName = "", depth = 0) {
+      if (node.name) {
+        labels.push(node.name);
+        parents.push(parentName);
+
+        if (node.value !== undefined) {
+          values.push(node.value);
+        } else if (!node.children) {
+          values.push(0);
+        }
+
+        // Use metaGenreColors for coloring
+        const top = depth === 0 ? node.name : parentName;
+        const colorKey = top.toLowerCase();
+        colors.push(metaGenreColors[colorKey] || "#cccccc");
+      }
+
+      if (node.children) {
+        for (const child of node.children) {
+          flatten(child, node.name, depth + 1);
+        }
+      }
     }
+
+    flatten(sunburst);
+
+    const trace = {
+      type: "sunburst",
+      labels,
+      parents,
+      values,
+      marker: { colors },
+      branchvalues: "total",
+      outsidetextfont: { size: 16, color: "#333" },
+      leaf: { opacity: 0.6 },
+      marker: { line: { width: 2 } }
+    };
+
+    const layout = {
+      autosize: true,
+      margin: { t: 0, r: 0, b: 0, l: 0 },
+      sunburstcolorway: ["#636efa", "#ef553b", "#00cc96", "#ab63fa", "#19d3f3"],
+      extendsunburstcolorway: true,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)"
+    };
+
+    Plotly.newPlot("genre-sunburst", [trace], layout, {
+      displayModeBar: false,
+      responsive: true
+    });
+  } catch (error) {
+    console.error("Failed to load sunburst chart:", error);
   }
-}
-
-  flatten(sunburst);
-
-  const trace = {
-    type: "sunburst",
-    labels,
-    parents,
-    values,
-    marker: { colors },
-    branchvalues: "total",
-    outsidetextfont: { size: 16, color: "#333" },
-    leaf: { opacity: 0.6 },
-    marker: { line: { width: 2 } }
-  };
-
-  const layout = {
-    margin: { l: 0, r: 0, b: 0, t: 0 },
-    sunburstcolorway: ["#636efa", "#ef553b", "#00cc96", "#ab63fa", "#19d3f3"],
-    extendsunburstcolorway: true
-  };
-
-  Plotly.newPlot("genre-sunburst", [trace], layout);
 }
 
 // Call loadNowPlaying every 30 seconds
