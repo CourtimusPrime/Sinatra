@@ -6,9 +6,9 @@ from fastapi.responses import FileResponse
 from backend.routes import router as platform_router
 
 app = FastAPI(
-    title="Sinatra API",
+    title="Sinatra",
     description="A cross-platform music sharing and streaming API",
-    version="1.0.0",
+    version="2.0.1",
     docs_url="/docs",  # Swagger UI
     redoc_url="/redoc"  # ReDoc UI
 )

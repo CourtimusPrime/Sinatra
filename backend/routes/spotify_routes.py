@@ -23,17 +23,21 @@ def login():
     sp_oauth = get_spotify_oauth()
     return RedirectResponse(sp_oauth.get_authorize_url())
 
-@router.get("/callback", tags=["Spotify"], summary="Spotify callback URI")
-def callback(code: str):
-    profile = get_user_profile_and_tokens(code)
+@router.get("/callback")
+async def spotify_callback(code: str):
+    # exchange code for token...
+    token = get_spotify_token_from_code(code)  # Your existing logic
+    sp = spotipy.Spotify(auth=token["access_token"])
+    user = sp.current_user()
 
-    users_collection.update_one(
-        {"user_id": profile["user_id"]},
-        {"$set": profile},
-        upsert=True
-    )
+    user_id = user["id"]
+    mongo_user = users_collection.find_one({"user_id": user_id})
 
-    return RedirectResponse(f"/onboard?user_id={profile['user_id']}")
+    # 👇 Check if they've already onboarded
+    if mongo_user and mongo_user.get("onboarded"):
+        return RedirectResponse(url=f"/home")
+    else:
+        return RedirectResponse(url=f"/onboard?user_id={user_id}")
 
 @router.get("/refresh_token", tags=["Spotify"], summary="Get the current user's refresh token")
 def refresh(refresh_token: str = Query(...)):

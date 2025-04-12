@@ -1,3 +1,8 @@
 {
-    "python.analysis.extraPaths": ["./python"]
-  }
+  "python.testing.framework": "pytest",
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "backend/tests"
+  ],
+  "python.testing.autoTestDiscoverOnSaveEnabled": true
+}

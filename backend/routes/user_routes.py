@@ -123,3 +123,8 @@ def complete_onboarding(data: dict):
         )
 
     return {"status": "ok"}
+
+@router.get("/has-completed-onboarding", tags=["User"], summary="Check if user completed onboarding")
+def has_completed_onboarding(user_id: str = Query(...)):
+    user = users_collection.find_one({"user_id": user_id}, {"_id": 0, "onboarded": 1})
+    return {"completed": user.get("onboarded", False) if user else False}
