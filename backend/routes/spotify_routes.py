@@ -25,19 +25,28 @@ def login():
 
 @router.get("/callback")
 async def spotify_callback(code: str):
-    # exchange code for token...
-    token = get_spotify_token_from_code(code)  # Your existing logic
-    sp = spotipy.Spotify(auth=token["access_token"])
-    user = sp.current_user()
+    try:
+        from backend.utils.spotify_utils import get_user_profile_and_tokens
+        user_info = get_user_profile_and_tokens(code)
 
-    user_id = user["id"]
-    mongo_user = users_collection.find_one({"user_id": user_id})
+        user_id = user_info["user_id"]
+        # Save or update user in DB
+        users_collection.update_one(
+            {"user_id": user_id},
+            {"$set": user_info},
+            upsert=True
+        )
 
-    # 👇 Check if they've already onboarded
-    if mongo_user and mongo_user.get("onboarded"):
-        return RedirectResponse(url=f"/home")
-    else:
-        return RedirectResponse(url=f"/onboard?user_id={user_id}")
+        # Redirect based on onboarding status
+        user = users_collection.find_one({"user_id": user_id})
+        if user and user.get("onboarded"):
+            return RedirectResponse(url=f"/home?user_id={user_id}")
+        else:
+            return RedirectResponse(url=f"/onboard?user_id={user_id}")
+
+    except Exception as e:
+        print(f"🔥 Error during Spotify callback: {e}")
+        raise HTTPException(status_code=500, detail="Callback failed")
 
 @router.get("/refresh_token", tags=["Spotify"], summary="Get the current user's refresh token")
 def refresh(refresh_token: str = Query(...)):
