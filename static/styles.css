@@ -287,3 +287,12 @@ input[type="checkbox"]:checked + .playlist-card {
   font-size: 1rem;
   color: #ccc;
 }
+
+#track-art {
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+#track-art.loaded {
+  opacity: 1;
+}

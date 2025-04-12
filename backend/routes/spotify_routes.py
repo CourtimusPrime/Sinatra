@@ -78,7 +78,8 @@ def get_playback_state(access_token: str = Depends(get_token)):
                         "name": track["name"],
                         "artist": track["artists"][0]["name"],
                         "album": track["album"]["name"],
-                        "external_url": track["external_urls"]["spotify"]
+                        "external_url": track["external_urls"]["spotify"],
+                        "album_art_url": track["album"]["images"][0]["url"] if track["album"]["images"] else None
                     }
                 }
             }
