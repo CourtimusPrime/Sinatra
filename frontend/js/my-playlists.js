@@ -11,7 +11,7 @@ if (!userId) window.location.href = "/";
 
 async function loadPlaylists() {
   const user = await fetch(`/me?user_id=${userId}`).then(r => r.json());
-  const playlistIds = user.important_playlists || [];
+  const playlistIds = user.user_playlists || [];
 
   const container = document.getElementById("playlist-container");
   container.innerHTML = "";

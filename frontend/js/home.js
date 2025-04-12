@@ -10,20 +10,33 @@ async function loadUser() {
   document.getElementById("user-name").textContent = user.display_name;
   document.getElementById("profile-pic").src = user.profile_picture;
 
-  const featured = user.important_playlists || [];
+  const featured = user.featured_playlists || [];
   const playlistContainer = document.getElementById("featured-playlists");
+  playlistContainer.innerHTML = "";
 
-  for (const playlistId of featured) {
-    const res = await fetch(`/playlist-info?user_id=${userId}&playlist_id=${playlistId}`);
-    const data = await res.json();
+  if (featured.length === 0) {
+    playlistContainer.innerHTML = `<p>No featured playlists selected yet.</p>`;
+  } else {
+    for (const playlistId of featured) {
+      const res = await fetch(`/playlist-info?user_id=${userId}&playlist_id=${playlistId}`);
+      const data = await res.json();
 
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <p><strong>${data.name}</strong></p>
-      <img src="${data.image}" width="100" />
-    `;
-    playlistContainer.appendChild(div);
+      const div = document.createElement("div");
+      div.className = "playlist-card";
+      div.innerHTML = `
+        <p><strong>${data.name}</strong></p>
+        <img src="${data.image}" width="100" />
+      `;
+      playlistContainer.appendChild(div);
+    }
   }
+
+  // Add "See all" link
+  const seeAll = document.createElement("a");
+  seeAll.href = "/playlists";
+  seeAll.textContent = "See all playlists →";
+  seeAll.className = "see-all-link";
+  playlistContainer.appendChild(seeAll);
 }
 
 async function loadNowPlaying() {
