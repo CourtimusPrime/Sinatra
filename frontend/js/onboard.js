@@ -9,6 +9,7 @@ const steps = document.querySelectorAll(".step");
 let userData = {
   user_id: userId,
   playlist_ids: [],
+  featured_playlists: [],
   display_name: "",
   profile_picture: ""
 };
@@ -155,11 +156,21 @@ function nextStep() {
       alert("Please select at least one playlist.");
       return;
     }
+    renderFeaturedPlaylistSelection();
     advance();
     return;
   }
 
   if (currentStep === 1) {
+    if (userData.featured_playlists.length !== 3) {
+      alert("Please select exactly 3 featured playlists.");
+      return;
+    }
+    advance();
+    return;
+  }
+
+  if (currentStep === 2) {
     const choice = document.querySelector('input[name="nameOption"]:checked').value;
     if (choice === "change") {
       const newName = document.getElementById("new-name").value.trim();
@@ -173,25 +184,25 @@ function nextStep() {
     return;
   }
 
-  if (currentStep === 2) {
+  if (currentStep === 3) {
     const upload = document.getElementById("profile-upload").files[0];
     if (upload) {
       const reader = new FileReader();
       reader.onloadend = () => {
         userData.profile_picture = reader.result;
-        advance(); // ✅ go to step 3, then it’ll trigger logic below
-        maybeSubmitOnboarding(); // ✅ handle submission from step 3
+        advance();
+        maybeSubmitOnboarding();
       };
       reader.readAsDataURL(upload);
       return;
     }
 
-    advance(); // no upload? just move on
+    advance();
     maybeSubmitOnboarding();
     return;
   }
 
-  if (currentStep === 3) {
+  if (currentStep === 4) {
     maybeSubmitOnboarding();
   }
 }
@@ -206,13 +217,13 @@ function advance() {
     steps[currentStep].classList.add("active");
   }
 
-  // Show footer only on step 0 (playlist selection)
+  // Show footer only on step 0 and featured playlist step
   const footer = document.getElementById("onboarding-footer");
-  footer.style.display = currentStep === 0 ? "flex" : "none";
+  footer.style.display = currentStep === 0 || currentStep === 1 ? "flex" : "none";
 }
 
 function maybeSubmitOnboarding() {
-  if (currentStep !== 3) return;
+  if (currentStep < 3) return;
 
   if (!userData.profile_picture) {
     userData.profile_picture = "https://www.rollingstone.com/wp-content/uploads/2020/11/alex-trebek-obit.jpg?w=1600&h=900&crop=1"; // <-- 💥 This fixes the crash
@@ -240,6 +251,51 @@ function maybeSubmitOnboarding() {
       alert("Something went wrong while saving your profile. Please try again.");
       nextBtn.disabled = false;
     });
+}
+
+function renderFeaturedPlaylistSelection() {
+  const container = document.getElementById("featured-playlist-options");
+  container.innerHTML = "";
+
+  userData.featured_playlists = [];
+
+  userData.playlist_ids.forEach(id => {
+    const playlist = [...listContainer.querySelectorAll(".playlist-card")]
+      .map(card => ({
+        id: card.querySelector("input").value,
+        name: card.querySelector(".playlist-name").textContent,
+        image: card.querySelector("img").src
+      }))
+      .find(p => p.id === id);
+
+    const div = document.createElement("div");
+    div.className = "playlist-card";
+
+    const image = document.createElement("img");
+    image.src = playlist.image;
+    image.className = "playlist-cover";
+
+    const name = document.createElement("p");
+    name.textContent = playlist.name;
+    name.className = "playlist-name";
+
+    div.appendChild(image);
+    div.appendChild(name);
+    container.appendChild(div);
+
+    div.addEventListener("click", () => {
+      if (div.classList.contains("checked")) {
+        div.classList.remove("checked");
+        userData.featured_playlists = userData.featured_playlists.filter(pid => pid !== playlist.id);
+      } else if (userData.featured_playlists.length < 3) {
+        div.classList.add("checked");
+        userData.featured_playlists.push(playlist.id);
+      }
+
+      document.getElementById("featured-count").textContent =
+        `${userData.featured_playlists.length} of 3 selected`;
+    });
+  });
 }
 
 document.querySelectorAll('input[name="nameOption"]').forEach(opt => {
