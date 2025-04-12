@@ -7,6 +7,25 @@ import spotipy
 
 router = APIRouter()
 
+@router.get("/user/{user_id}/playlists", tags=["User"], summary="Get all playlists with full data")
+def get_user_full_playlists(user_id: str):
+    user = users_collection.find_one({"user_id": user_id})
+    if not user or "user_playlists" not in user:
+        return []
+
+    all_playlist_ids = user["user_playlists"]
+    full_playlists = []
+
+    for pid in all_playlist_ids:
+        match = users_collection.find_one(
+            {"public_playlists.playlist_id": pid},
+            {"public_playlists.$": 1}
+        )
+        if match and "public_playlists" in match:
+            full_playlists.append(match["public_playlists"][0])
+
+    return full_playlists
+
 @router.get("/me", tags=["User"], summary="Gets info on the user")
 def get_current_user(access_token: str = Depends(get_token), user_id: str = Query(...)):
     sp = spotipy.Spotify(auth=access_token)

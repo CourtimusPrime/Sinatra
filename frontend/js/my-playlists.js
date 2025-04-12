@@ -1,24 +1,16 @@
 // frontend/js/my-playlists.js
 
 const userId = localStorage.getItem("user_id");
-fetch(`/user-playlists?user_id=${userId}`)
-  .then(res => res.json())
-  .then(playlists => {
-    // Loop and display
-  });
   
 if (!userId) window.location.href = "/";
 
 async function loadPlaylists() {
-  const user = await fetch(`/me?user_id=${userId}`).then(r => r.json());
-  const playlistIds = user.user_playlists || [];
+  const playlists = await fetch(`/user/${userId}/playlists`).then(r => r.json());
 
   const container = document.getElementById("playlist-container");
   container.innerHTML = "";
 
-  for (const pid of playlistIds) {
-    const data = await fetch(`/public-playlist/${pid}`).then(r => r.json());
-
+  playlists.forEach(data => {
     const div = document.createElement("div");
     div.innerHTML = `
       <img src="${data.image}" width="100" />
@@ -26,7 +18,7 @@ async function loadPlaylists() {
     `;
     div.onclick = () => showTracks(data);
     container.appendChild(div);
-  }
+  });
 }
 
 function showTracks(playlist) {
