@@ -12,13 +12,18 @@
   <h1>🎧 Welcome, <span id="user-name">...</span></h1>
   <img id="profile-pic" src="" width="100" />
   
-  <h2>Now Playing:</h2>
-  <div id="now-playing">
-    <p id="track-name">No track playing</p>
-    <img id="track-art" src="" width="100" />
-    <br>
-    <button onclick="loadNowPlaying()">🔄 Refresh</button>
-  </div>
+  <section id="now-playing">
+    <div class="now-playing-card">
+      <img id="track-art" src="/static/default-cover.jpg" alt="Album art" class="now-playing-bg">
+      <div class="now-playing-overlay">
+        <div class="now-playing-meta">
+          <div class="recent-label">🎧 Recently Played</div>
+          <div id="recent-title" class="recent-title">Low</div>
+          <div id="recent-artist" class="recent-artist">Cracker</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <h2>Your Music Taste</h2>
   <!--<div id="genre-sunburst" style="width:100%;max-width:800px;height:600px;margin:auto;"></div>

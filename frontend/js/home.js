@@ -40,10 +40,20 @@ async function loadUser() {
 }
 
 async function loadNowPlaying() {
-  const playback = await fetch(`/playback?user_id=${userId}`).then(r => r.json());
-  if (playback.playback && playback.playback.track) {
-    document.getElementById("track-name").textContent = playback.playback.track.name + " – " + playback.playback.track.artist;
-    document.getElementById("track-art").src = playback.playback.track.album_art_url || "/static/default-cover.jpg";
+  try {
+    const playback = await fetch(`/playback?user_id=${userId}`).then(r => r.json());
+
+    if (playback.playback && playback.playback.track) {
+      document.getElementById("recent-title").textContent = playback.playback.track.name;
+      document.getElementById("recent-artist").textContent = playback.playback.track.artist;
+      document.getElementById("track-art").src = playback.playback.track.album_art_url || "/static/default-cover.jpg";
+    } else {
+      document.getElementById("recent-title").textContent = "Nothing playing";
+      document.getElementById("recent-artist").textContent = "";
+      document.getElementById("track-art").src = "/static/default-cover.jpg";
+    }
+  } catch (error) {
+    console.error("🎵 Failed to load playback info:", error);
   }
 }
 
