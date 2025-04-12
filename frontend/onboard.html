@@ -33,12 +33,11 @@
     <div id="playlist-list" class="playlist-grid"></div>
   </div>
 
-  <div id="step-1-featured" class="step">
-    <h2>🌟 Choose 3 playlists to feature</h2>
-    <p>You selected <span id="total-selected-count">0</span> playlists. Pick <strong>3</strong> to highlight on your profile.</p>
-    <div id="featured-playlist-list" class="playlist-grid"></div>
-    <div id="featured-count">0 of 3 selected</div>
-    <button id="featured-next-button" onclick="nextStep()" disabled>Next</button>
+  <div class="step" id="step-feature-playlists">
+    <h2>Select up to 3 featured playlists</h2>
+    <p>These will be shown on your front page. You can change them later.</p>
+    <div id="featured-playlist-options" class="playlist-grid"></div>
+    <p id="featured-count">0 of 3 selected</p>
   </div>
 
   <div id="step-2" class="step">
@@ -69,6 +68,5 @@
     <div id="selected-count">0 playlists selected</div>
     <button id="next-button" onclick="nextStep()" disabled>Next</button>
   </div>
-  <script src="/static/js/main.js"></script>
 </body>
 </html>

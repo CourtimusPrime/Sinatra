@@ -4,6 +4,13 @@
 <head>
   <title>Login</title>
   <link rel="stylesheet" href="/static/styles.css">
+  <script>
+    // If user is already logged in, go straight to home
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      window.location.href = "/home";
+    }
+  </script>
 </head>
 
 <body>

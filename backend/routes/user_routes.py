@@ -7,6 +7,25 @@ import spotipy
 
 router = APIRouter()
 
+@router.get("/user/{user_id}/playlists", tags=["User"], summary="Get all playlists with full data")
+def get_user_full_playlists(user_id: str):
+    user = users_collection.find_one({"user_id": user_id})
+    if not user or "user_playlists" not in user:
+        return []
+
+    all_playlist_ids = user["user_playlists"]
+    full_playlists = []
+
+    for pid in all_playlist_ids:
+        match = users_collection.find_one(
+            {"public_playlists.playlist_id": pid},
+            {"public_playlists.$": 1}
+        )
+        if match and "public_playlists" in match:
+            full_playlists.append(match["public_playlists"][0])
+
+    return full_playlists
+
 @router.get("/me", tags=["User"], summary="Gets info on the user")
 def get_current_user(access_token: str = Depends(get_token), user_id: str = Query(...)):
     sp = spotipy.Spotify(auth=access_token)
@@ -14,12 +33,13 @@ def get_current_user(access_token: str = Depends(get_token), user_id: str = Quer
     mongo_user = users_collection.find_one({"user_id": user["id"]})
 
     return {
-    "user_id": user["id"],
-    "display_name": user["display_name"],
-    "email": user["email"],
-    "profile_picture": user["images"][0]["url"] if user.get("images") else None,
-    "featured_playlists": mongo_user.get("featured_playlists", []) if mongo_user else []
-}
+        "user_id": user["id"],
+        "display_name": user["display_name"],
+        "email": user["email"],
+        "profile_picture": user["images"][0]["url"] if user.get("images") else None,
+        "user_playlists": mongo_user.get("user_playlists", []) if mongo_user else [],
+        "featured_playlists": mongo_user.get("featured_playlists", []) if mongo_user else []
+    }
 
 @router.get("/users", tags=["User"], summary="Get list of all users")
 def get_users():
@@ -28,11 +48,11 @@ def get_users():
 @router.get("/user-playlists", tags=["User"], summary="Get the user's playlists")
 def get_user_playlists(user_id: str = Query(...)):
     user = users_collection.find_one({"user_id": user_id})
-    if not user or "important_playlists" not in user:
+    if not user or "user_playlists" not in user:
         return []
 
     public = []
-    for pid in user["important_playlists"]:
+    for pid in user["user_playlists"]:
         match = users_collection.find_one(
             {"public_playlists.playlist_id": pid},
             {"public_playlists.$": 1}
@@ -85,15 +105,15 @@ def complete_onboarding(data: dict):
         })
 
     users_collection.update_one(
-        {"user_id": data["user_id"]},
-        {"$set": {
-            "display_name": data["display_name"],
-            "profile_picture": data["profile_picture"],
-            "important_playlists": data["playlist_ids"],
-            "featured_playlists": data.get("featured_playlists", []),
-            "onboarded": True
-        }}
-    )
+    {"user_id": data["user_id"]},
+    {"$set": {
+        "display_name": data["display_name"],
+        "profile_picture": data["profile_picture"],
+        "user_playlists": data["playlist_ids"],
+        "featured_playlists": data.get("featured_playlists", []),
+        "onboarded": True
+    }}
+)
 
     for pl in full_playlists:
         users_collection.update_one(

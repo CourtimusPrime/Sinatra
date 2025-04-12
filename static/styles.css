@@ -206,3 +206,14 @@ input[type="checkbox"]:checked + .playlist-card {
     align-items: center;
   }
 }
+
+.see-all-link {
+  display: inline-block;
+  margin-top: 1em;
+  color: #1db954;
+  text-decoration: none;
+  font-weight: bold;
+}
+.see-all-link:hover {
+  text-decoration: underline;
+}
