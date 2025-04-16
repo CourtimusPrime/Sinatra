@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.routes import router as platform_router
-import os
+from backend.routes import spotify_routes as spotify
+from backend.routes import user
 
 app = FastAPI(
     title="Sinatra",
@@ -15,6 +16,8 @@ app = FastAPI(
 )
 
 app.include_router(platform_router)
+app.include_router(user.router, prefix="/api/user")
+app.include_router(spotify.router, prefix="/api/spotify")
 
 app.mount("/static/js", StaticFiles(directory="frontend/js"), name="frontend-js")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -33,3 +36,6 @@ def serve_home(): return FileResponse("frontend/home.html")
 
 @app.get("/my-playlists")
 def serve_my_playlists(): return FileResponse("frontend/my-playlists.html")
+
+for route in app.routes:
+    print("📡", route.path)

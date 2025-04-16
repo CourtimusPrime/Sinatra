@@ -17,6 +17,8 @@ def get_token(user_id: str = Query(...)):
         "expires_at": user["expires_at"]
     }
 
+    sp_oauth = get_spotify_oauth()  # now it's mockable 🎯
+
     if sp_oauth.is_token_expired(token_info):
         refreshed = sp_oauth.refresh_access_token(user["refresh_token"])
         users_collection.update_one(
