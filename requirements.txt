@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+spotipy
+pymongo
+python-dotenv
+jinja2
+
+# Dev + test
+pytest
+pytest-mock
+black
+pytest-cov
