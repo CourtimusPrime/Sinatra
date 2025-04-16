@@ -1,4 +1,4 @@
-# backend/auth.py
+# backend/auth/token_handler.py
 
 from fastapi import Query, HTTPException
 from backend.db import users_collection

@@ -1,4 +1,4 @@
-# backend/routes/spotify_routes.py
+# backend/routes/spotify.py
 
 from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi.responses import RedirectResponse

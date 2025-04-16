@@ -1,9 +1,9 @@
-# backend/routes/genre_routes.py
+# backend/routes/genres.py
 
 from fastapi import APIRouter, Query, Depends
 import spotipy
-from backend.auth import get_token
-from backend.genres import genre_wizard
+from backend.auth.token_handler import get_token
+from backend.services import genre_service as genre_wizard
 from backend.utils import get_artist_genres
 
 router = APIRouter()

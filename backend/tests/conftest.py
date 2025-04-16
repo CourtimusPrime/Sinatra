@@ -1,13 +1,10 @@
 # backend/tests/conftest.py
+# Shared setup for all tests — defines fixtures like your client
+
 import pytest
 from fastapi.testclient import TestClient
 from backend.main import app
-from fastapi.routing import APIRoute
 
 @pytest.fixture(scope="module")
 def client():
-    print("\n🔍 ROUTES AVAILABLE IN APP:")
-    for route in app.routes:
-        if isinstance(route, APIRoute):
-            print("🛣️", route.path)
     return TestClient(app)

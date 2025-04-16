@@ -1,4 +1,4 @@
-# routes/platform_routes.py
+# backend/routes/platform.py
 
 from fastapi import APIRouter, HTTPException
 from backend.utils.platform_auth import generate_pkce_pair, build_auth_url
