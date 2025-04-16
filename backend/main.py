@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.routes import router as platform_router
+import os
 
 app = FastAPI(
     title="Sinatra",
