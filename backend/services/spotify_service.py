@@ -1,4 +1,4 @@
-# backend/utils/spotify_utils.py
+# backend/services/spotify_service.py
 
 import spotipy
 from backend.utils import get_spotify_oauth, get_artist_genres

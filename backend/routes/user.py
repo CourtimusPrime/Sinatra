@@ -1,8 +1,8 @@
-# backend/routes/user-routes.py
+# backend/routes/user.py
 
 from fastapi import APIRouter, HTTPException, Query, Depends
 from backend.db import users_collection
-from backend.auth import get_token
+from backend.auth.token_handler import get_token
 import spotipy
 
 router = APIRouter()

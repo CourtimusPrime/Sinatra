@@ -1,1 +1,1 @@
-# backend/tests/__init__.py
+# This file marks the test directory as a package. No code needed.

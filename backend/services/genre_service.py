@@ -1,11 +1,11 @@
-# backend/genres/genre_wizard.py
+# backend/services/genre_service.py
 
 import json
 from collections import defaultdict, Counter
 import os
 
 def load_genre_hierarchy():
-    filepath = os.path.join(os.path.dirname(__file__), 'genre_list.json')
+    filepath = os.path.join(os.path.dirname(__file__), '../genres/genre_list.json')
     with open(filepath, 'r') as f:
         return json.load(f)
 
