@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11.0"]  # Slight bump to bust cached runners
+        python-version: ["3.11.0"]
 
     env:
       SPOTIFY_CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
@@ -35,12 +35,15 @@ jobs:
         cat <<EOF > .env
         SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
         SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
-        SPOTIPY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
-        SPOTIPY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+        SPOTIPY_CLIENT_ID=${SPOTIPY_CLIENT_ID}
+        SPOTIPY_CLIENT_SECRET=${SPOTIPY_CLIENT_SECRET}
         SPOTIPY_REDIRECT_URI=${SPOTIPY_REDIRECT_URI}
         MONGO_URI=${MONGO_URI}
         TIDAL_TOKEN=${TIDAL_TOKEN}
         EOF
+
+    - name: Debug: check .env contents
+      run: cat .env | sed 's/=.*/=[REDACTED]/'
 
     - name: Install dependencies
       run: |
