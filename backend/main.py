@@ -36,6 +36,3 @@ def serve_home(): return FileResponse("frontend/home.html")
 
 @app.get("/my-playlists")
 def serve_my_playlists(): return FileResponse("frontend/my-playlists.html")
-
-for route in app.routes:
-    print("📡", route.path)

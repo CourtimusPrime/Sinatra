@@ -3,7 +3,7 @@
 def test_get_user_from_db(client, mocker):
     fake_user = {
         "user_id": "test123",
-        "display_name": "Testy McTestface",
+        "display_name": "Ziggy Stardust",
         "email": "test@example.com",
         "user_playlists": [],
         "featured_playlists": [],
@@ -17,10 +17,10 @@ def test_get_user_from_db(client, mocker):
     mock_spotify = mocker.patch("spotipy.Spotify")
     mock_spotify.return_value.current_user.return_value = {
     "id": "test123",
-    "display_name": "Testy McTestface",
+    "display_name": "Ziggy Stardust",
     "email": "test@example.com"
 }
 
     response = client.get("/api/user/me?user_id=test123")
     assert response.status_code == 200
-    assert response.json()["display_name"] == "Testy McTestface"
+    assert response.json()["display_name"] == "Ziggy Stardust"
