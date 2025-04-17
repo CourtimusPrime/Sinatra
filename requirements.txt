@@ -7,6 +7,7 @@ python-dotenv
 jinja2
 setuptools>=69.0.0
 httpx
+black
 
 # Dev + test
 pytest
