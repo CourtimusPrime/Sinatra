@@ -2,8 +2,11 @@
 name: Run Tests + Format + Coverage
 
 on:
-  push: { branches: [main] }
-  pull_request: { branches: [main] }
+  push:
+    branches: [main, optimising-http]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
 
 jobs:
   test:
@@ -61,4 +64,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml
-        slug: CourtimusPrime/Sinatra4
+        slug: CourtimusPrime/Sinatra
