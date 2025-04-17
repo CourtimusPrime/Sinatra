@@ -2,6 +2,7 @@
 # Tests the onboarding process → /complete-onboarding
 import pytest
 
+
 def test_complete_onboarding(client, mocker):
     # Patch FIRST
     mocker.patch("backend.routes.user.get_token", return_value="mock-token")
@@ -11,15 +12,19 @@ def test_complete_onboarding(client, mocker):
     mock_spotify.return_value.playlist.return_value = {
         "name": "Fake Playlist",
         "images": [{"url": "#"}],
-        "tracks": {"items": [{
-            "track": {
-                "name": "Song",
-                "artists": [{"name": "Artist"}],
-                "album": {"name": "Album", "images": [{"url": "#"}]},
-                "external_ids": {"isrc": "XYZ"},
-                "id": "abc123"
-            }
-        }]}
+        "tracks": {
+            "items": [
+                {
+                    "track": {
+                        "name": "Song",
+                        "artists": [{"name": "Artist"}],
+                        "album": {"name": "Album", "images": [{"url": "#"}]},
+                        "external_ids": {"isrc": "XYZ"},
+                        "id": "abc123",
+                    }
+                }
+            ]
+        },
     }
 
     mocker.patch("backend.db.users_collection.update_one")
@@ -30,12 +35,13 @@ def test_complete_onboarding(client, mocker):
         "display_name": "Testy",
         "profile_picture": "#",
         "playlist_ids": ["pl1"],
-        "featured_playlists": []
+        "featured_playlists": [],
     }
 
     response = client.post("/api/user/complete-onboarding", json=payload)
     print("💥", response.status_code, response.text)
     assert response.status_code == 200
+
 
 def test_onboarding_route_exists(client):
     res = client.post("/api/user/complete-onboarding", json={})

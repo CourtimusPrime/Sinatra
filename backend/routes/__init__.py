@@ -5,6 +5,7 @@ from .spotify import router as spotify_router
 from .user import router as user_router
 from .platform import router as platform_router
 from .genres import router as genres_router
+
 # from .tidal import router as tidal_router  # if/when needed
 
 router = APIRouter()

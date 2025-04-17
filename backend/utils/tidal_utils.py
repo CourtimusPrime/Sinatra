@@ -6,6 +6,7 @@ import os
 import urllib.parse
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 TIDAL_AUTH_URL = "https://login.tidal.com/authorize"
@@ -22,16 +23,22 @@ SCOPES = [
     "collection.write",
     "playback",
     "recommendations.read",
-    "entitlements.read"
+    "entitlements.read",
 ]
 
+
 def generate_pkce_pair():
-    code_verifier = base64.urlsafe_b64encode(os.urandom(40)).rstrip(b"=").decode("utf-8")
-    code_challenge = base64.urlsafe_b64encode(
-        hashlib.sha256(code_verifier.encode("utf-8")).digest()
-    ).rstrip(b"=").decode("utf-8")
+    code_verifier = (
+        base64.urlsafe_b64encode(os.urandom(40)).rstrip(b"=").decode("utf-8")
+    )
+    code_challenge = (
+        base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode("utf-8")).digest())
+        .rstrip(b"=")
+        .decode("utf-8")
+    )
 
     return code_verifier, code_challenge
+
 
 def get_tidal_auth_url(code_challenge):
     params = {
@@ -40,6 +47,6 @@ def get_tidal_auth_url(code_challenge):
         "redirect_uri": TIDAL_REDIRECT_URI,
         "code_challenge_method": "S256",
         "code_challenge": code_challenge,
-        "scope": " ".join(SCOPES)
+        "scope": " ".join(SCOPES),
     }
     return f"{TIDAL_AUTH_URL}?{urllib.parse.urlencode(params)}"

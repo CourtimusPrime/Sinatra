@@ -11,19 +11,26 @@ PLATFORM_CONFIGS = {
         "client_id": os.getenv("SPOTIFY_CLIENT_ID"),
         "redirect_uri": os.getenv("SPOTIFY_REDIRECT_URI"),
         "auth_url": "https://accounts.spotify.com/authorize",
-        "scopes": ["user-read-email", "playlist-read-private"]
+        "scopes": ["user-read-email", "playlist-read-private"],
     },
     "tidal": {
         "client_id": os.getenv("TIDAL_ID"),
         "redirect_uri": os.getenv("TIDAL_REDIRECT_URI"),
         "auth_url": "https://login.tidal.com/authorize",
         "scopes": [
-            "user.read", "collection.read", "search.read",
-            "playlists.read", "playlists.write", "collection.write",
-            "playback", "recommendations.read", "entitlements.read"
-        ]
-    }
+            "user.read",
+            "collection.read",
+            "search.read",
+            "playlists.read",
+            "playlists.write",
+            "collection.write",
+            "playback",
+            "recommendations.read",
+            "entitlements.read",
+        ],
+    },
 }
+
 
 @router.get("/auth-url/{platform}")
 def get_auth_url(platform: str):
@@ -37,6 +44,6 @@ def get_auth_url(platform: str):
         client_id=config["client_id"],
         redirect_uri=config["redirect_uri"],
         code_challenge=code_challenge,
-        scopes=config["scopes"]
+        scopes=config["scopes"],
     )
     return {"auth_url": url, "code_verifier": code_verifier}

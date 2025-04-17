@@ -14,4 +14,3 @@ target_user = input("user_id: ")
 
 result = users_collection.delete_one({"user_id": target_user})
 print(f"Deleted {result.deleted_count} user(s).")
-
