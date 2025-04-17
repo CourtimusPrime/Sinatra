@@ -4,13 +4,16 @@ import json
 from collections import defaultdict, Counter
 import os
 
+
 def load_genre_hierarchy():
-    filepath = os.path.join(os.path.dirname(__file__), '../genres/genre_list.json')
-    with open(filepath, 'r') as f:
+    filepath = os.path.join(os.path.dirname(__file__), "../genres/genre_list.json")
+    with open(filepath, "r") as f:
         return json.load(f)
+
 
 GENRE_TREE = load_genre_hierarchy()
 genre_lineage = {}
+
 
 def parse_genres(node, path=None):
     if path is None:
@@ -23,9 +26,11 @@ def parse_genres(node, path=None):
     for child in node.get("genres", []):
         parse_genres(child, full_path)
 
+
 # Build lineage map
 for genre in GENRE_TREE.get("genres", []):
     parse_genres(genre)
+
 
 def genre_frequency(genre_inputs, limit=20):
     if not isinstance(genre_inputs, list):
@@ -34,8 +39,10 @@ def genre_frequency(genre_inputs, limit=20):
     top_genres = frequency_counter.most_common(limit)
     return dict(top_genres)
 
+
 def get_lineage(genre):
     return genre_lineage.get(genre, ["other", genre])
+
 
 def tag_genre_levels(genre_inputs):
     result = []
@@ -43,18 +50,15 @@ def tag_genre_levels(genre_inputs):
         lineage = get_lineage(genre)
         level = len(lineage)
         label = (
-            "meta-genre" if level == 1 else
-            "genre" if level == 2 else
-            "sub-genre" if level == 3 else
-            "micro-genre"
+            "meta-genre"
+            if level == 1
+            else "genre" if level == 2 else "sub-genre" if level == 3 else "micro-genre"
         )
-        result.append({
-            "genre": genre,
-            "level": level,
-            "tag": label,
-            "lineage": lineage
-        })
+        result.append(
+            {"genre": genre, "level": level, "tag": label, "lineage": lineage}
+        )
     return result
+
 
 def build_sunburst_tree(genre_freq):
     tree = {"name": "music", "children": []}
@@ -66,7 +70,9 @@ def build_sunburst_tree(genre_freq):
             if "children" not in node:
                 node["children"] = []
 
-            found = next((child for child in node["children"] if child["name"] == genre), None)
+            found = next(
+                (child for child in node["children"] if child["name"] == genre), None
+            )
             if not found:
                 new_node = {"name": genre, "children": []}
                 node["children"].append(new_node)
@@ -80,7 +86,9 @@ def build_sunburst_tree(genre_freq):
             node["children"] = []
 
         # Now safely search children
-        existing_leaf = next((child for child in node["children"] if child["name"] == final_name), None)
+        existing_leaf = next(
+            (child for child in node["children"] if child["name"] == final_name), None
+        )
         if existing_leaf:
             if "value" in existing_leaf:
                 existing_leaf["value"] += value
@@ -94,6 +102,7 @@ def build_sunburst_tree(genre_freq):
         insert_path(tree, lineage, freq_val)
 
     return tree
+
 
 def genre_highest(genre_inputs):
     if isinstance(genre_inputs, dict):
@@ -114,6 +123,7 @@ def genre_highest(genre_inputs):
             result["other"] += count
 
     return dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
+
 
 def generate_user_summary(genre_freq):
     highest = genre_highest(genre_freq)

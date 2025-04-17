@@ -8,6 +8,7 @@ from backend.utils import get_artist_genres
 
 router = APIRouter()
 
+
 @router.get("/test-genres")
 def test_genres(user_id: str = Query(...)):
     access_token = get_token(user_id)
@@ -35,11 +36,16 @@ def test_genres(user_id: str = Query(...)):
         "paths": paths,
         "tagged": tags,
         "sunburst": sunburst,
-        "summary": summary
+        "summary": summary,
     }
 
+
 @router.get("/user-genres")
-def get_flat_user_genres(access_token: str = Depends(get_token), time_range: str = "short_term", limit: int = 50):
+def get_flat_user_genres(
+    access_token: str = Depends(get_token),
+    time_range: str = "short_term",
+    limit: int = 50,
+):
     sp = spotipy.Spotify(auth=access_token)
     top_tracks = sp.current_user_top_tracks(limit=limit, time_range=time_range)
 

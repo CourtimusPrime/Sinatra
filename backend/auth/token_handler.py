@@ -6,6 +6,7 @@ from backend.utils import get_spotify_oauth
 
 sp_oauth = get_spotify_oauth()
 
+
 def get_token(user_id: str = Query(...)):
     user = users_collection.find_one({"user_id": user_id})
     if not user:
@@ -14,25 +15,30 @@ def get_token(user_id: str = Query(...)):
     token_info = {
         "access_token": user["access_token"],
         "refresh_token": user["refresh_token"],
-        "expires_at": user["expires_at"]
+        "expires_at": user["expires_at"],
     }
+
+    sp_oauth = get_spotify_oauth()  # now it's mockable 🎯
 
     if sp_oauth.is_token_expired(token_info):
         refreshed = sp_oauth.refresh_access_token(user["refresh_token"])
         users_collection.update_one(
             {"user_id": user_id},
-            {"$set": {
-                "access_token": refreshed["access_token"],
-                "expires_at": refreshed["expires_at"]
-            }}
+            {
+                "$set": {
+                    "access_token": refreshed["access_token"],
+                    "expires_at": refreshed["expires_at"],
+                }
+            },
         )
         return refreshed["access_token"]
 
     return user["access_token"]
 
+
 def build_token_info(user):
     return {
         "access_token": user["access_token"],
         "refresh_token": user["refresh_token"],
-        "expires_at": user["expires_at"]
+        "expires_at": user["expires_at"],
     }
