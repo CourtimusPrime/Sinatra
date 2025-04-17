@@ -15,6 +15,8 @@ jobs:
     env:
       SPOTIFY_CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
       SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+      SPOTIPY_CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
       MONGO_URI:             ${{ secrets.MONGODB_URI }}
       TIDAL_TOKEN:           ${{ secrets.TIDAL_TOKEN }}
 
@@ -32,6 +34,8 @@ jobs:
         cat <<EOF > .env
         SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
         SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+        SPOTIPY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+        SPOTIPY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
         MONGO_URI=${MONGO_URI}
         TIDAL_TOKEN=${TIDAL_TOKEN}
         EOF
