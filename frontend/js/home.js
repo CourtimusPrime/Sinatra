@@ -5,7 +5,7 @@ if (!userId) {
 }
 
 async function loadUser() {
-  const user = await fetch(`/me?user_id=${userId}`).then(r => r.json());
+  const user = await fetch(`/api/user/me?user_id=${userId}`).then(r => r.json());
 
   document.getElementById("user-name").textContent = user.display_name;
   document.getElementById("profile-pic").src = user.profile_picture;
@@ -18,7 +18,7 @@ async function loadUser() {
     playlistContainer.innerHTML = `<p>No featured playlists selected yet.</p>`;
   } else {
     for (const playlistId of featured) {
-      const res = await fetch(`/playlist-info?user_id=${userId}&playlist_id=${playlistId}`);
+      const res = await fetch(`/api/spotify/playlist-info?user_id=${userId}&playlist_id=${playlistId}`);
       const data = await res.json();
 
       const div = document.createElement("div");
@@ -41,7 +41,7 @@ async function loadUser() {
 
 async function loadNowPlaying() {
   try {
-    const playback = await fetch(`/playback?user_id=${userId}`).then(r => r.json());
+    const playback = await fetch(`/api/spotify/playback?user_id=${userId}`).then(r => r.json());
 
     if (playback.playback && playback.playback.track) {
       document.getElementById("recent-title").textContent = playback.playback.track.name;
@@ -64,7 +64,7 @@ function logout() {
 
 async function loadSunburst() {
   try {
-    const res = await fetch(`/genres?user_id=${userId}`);
+    const res = await fetch(`/api/spotify/genres?user_id=${userId}`);
     const data = await res.json();
 
     if (!data.sunburst) {

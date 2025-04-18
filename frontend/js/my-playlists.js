@@ -5,7 +5,7 @@ const userId = localStorage.getItem("user_id");
 if (!userId) window.location.href = "/";
 
 async function loadPlaylists() {
-  const playlists = await fetch(`/user/${userId}/playlists`).then(r => r.json());
+  const playlists = await fetch(`/api/user/user/${userId}/playlists`).then(r => r.json());
 
   const container = document.getElementById("playlist-container");
   container.innerHTML = "";

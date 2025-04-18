@@ -22,7 +22,7 @@ if (userIdFromUrl) {
 
   if (userId) {
     try {
-      const res = await fetch(`/me?user_id=${userId}`);
+      const res = await fetch(`/api/user/me?user_id=${userId}`);
       if (!res.ok) throw new Error("Invalid user or expired token");
     } catch (err) {
       console.error("❌ Auth check failed, clearing user_id");
@@ -32,7 +32,7 @@ if (userIdFromUrl) {
     }
 
     // 🎓 Onboarding logic
-    const res = await fetch(`/has-completed-onboarding?user_id=${userId}`);
+    const res = await fetch(`/api/user/has-completed-onboarding?user_id=${userId}`);
     const { completed } = await res.json();
 
     if (completed && path === "/onboard") {

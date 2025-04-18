@@ -193,3 +193,9 @@ def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
         "name": playlist["name"],
         "image": playlist["images"][0]["url"] if playlist["images"] else None,
     }
+
+@router.get("/genres", tags=["Spotify"])
+def get_user_genres(user_id: str = Query(...)):
+    # You can use your existing genre service here
+    from backend.services.genre_service import get_user_sunburst
+    return get_user_sunburst(user_id)

@@ -29,7 +29,7 @@ function loadSavedSelections() {
 }
 
 async function fetchUserData() {
-  const res = await fetch(`/me?user_id=${userId}`);
+  const res = await fetch(`/api/user/me?user_id=${userId}`);
   const user = await res.json();
 
   document.getElementById("current-name").textContent = `"${user.display_name}"`;
@@ -38,7 +38,7 @@ async function fetchUserData() {
   userData.display_name = user.display_name;
   userData.profile_picture = user.profile_picture || fallback_picture;
 
-  const playlistsRes = await fetch(`/playlists?user_id=${userId}`);
+  const playlistsRes = await fetch(`/api/spotify/playlists?user_id=${userId}`);
   const playlistsData = await playlistsRes.json();
 
   let allPlaylists = playlistsData.items.filter(
