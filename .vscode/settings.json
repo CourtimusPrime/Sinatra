@@ -4,5 +4,9 @@
   "python.testing.pytestArgs": [
     "backend/tests"
   ],
-  "python.testing.autoTestDiscoverOnSaveEnabled": true
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  "github-actions.workflows.pinned.workflows": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

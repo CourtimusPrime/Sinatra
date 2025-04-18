@@ -171,7 +171,7 @@ def get_top_tracks(
         ]
     }
 
-
+## Playback
 @router.post("/play", tags=["Spotify"], summary="Plays current track")
 def start_playback(access_token: str = Depends(get_token)):
     spotipy.Spotify(auth=access_token).start_playback()

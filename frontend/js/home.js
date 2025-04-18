@@ -1,9 +1,12 @@
 // frontend/js/home.js
+
+// Gets user_id from localstorage
 const userId = localStorage.getItem("user_id");
 if (!userId) {
   window.location.href = "/";
 }
 
+// Renders user data
 async function loadUser() {
   const user = await fetch(`/api/user/me?user_id=${userId}`).then(r => r.json());
 
@@ -39,6 +42,7 @@ async function loadUser() {
   playlistContainer.appendChild(seeAll);
 }
 
+// Renders recently played
 async function loadNowPlaying() {
   try {
     const playback = await fetch(`/api/spotify/playback?user_id=${userId}`).then(r => r.json());
@@ -57,11 +61,13 @@ async function loadNowPlaying() {
   }
 }
 
+// Handles logout
 function logout() {
   localStorage.clear();
   window.location.href = "/";
 }
 
+// Renders genre charts
 async function loadSunburst() {
   try {
     const res = await fetch(`/api/spotify/genres?user_id=${userId}`);
@@ -144,16 +150,4 @@ window.onload = () => {
   loadUser();
   loadNowPlaying();
   loadSunburst();
-};
-
-const metaGenreColors = {
-  rock: "#ff6f61",
-  pop: "#6b5b95",
-  rnb: "#88b04b",
-  "r&b": "#88b04b",
-  electronic: "#009688",
-  hiphop: "#f7cac9",
-  "hip-hop": "#f7cac9",
-  metal: "#505050",
-  other: "#9e9e9e"
 };

@@ -7,7 +7,6 @@ import spotipy
 
 router = APIRouter()
 
-
 @router.get(
     "/user/{user_id}/playlists",
     tags=["User"],
