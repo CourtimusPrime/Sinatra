@@ -66,7 +66,7 @@ The app will be accessible at `http://localhost:8000`.
 
 Open the following URLs in a browser:
 - **Home Page:** `http://localhost:8000`
-- **Login Page:** `http://localhost:8000/login-page`
+- **Login Page:** `http://localhost:8000/api/{spotify/tidal}/login`
 - **Onboarding Page:** `http://localhost:8000/onboard`
 
 **_Step #7:_ Run Tests (optional)**
