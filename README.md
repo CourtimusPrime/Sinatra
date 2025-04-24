@@ -3,6 +3,10 @@
 
 Sinatra is a cross-platform music app used for sharing music tastes and the aux. Create a custom link-in-bio to a unique music profile for listing your favourite tracks and playlists and compare your music taste with dynamic charts. Share the aux across different music apps, get tips from your own lists, and enable vibe-checks to maintain a consistent queue.
 
+# Repo Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/b3718d71336fbc167eafc3031d5172de98749629.svg "Repobeats analytics image")
+
 
 ## Key Features
 
