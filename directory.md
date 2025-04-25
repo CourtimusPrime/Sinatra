@@ -10,7 +10,6 @@
         genre_routes.py
         platform_router.py
         spotify_routes.py
-        tidal_routes.py
         user_routes.py
     /tests
         __init__.py

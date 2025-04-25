@@ -6,50 +6,61 @@ import spotipy
 
 from backend.db import users_collection
 from backend.auth import get_token
+
 print("🎯 Imported get_token from backend.auth")
 
 from backend.utils.spotify_utils import (
     get_user_profile_and_tokens,
     simplify_playlist_data,
-    simplify_recent_tracks
+    simplify_recent_tracks,
 )
 from backend.utils.utils import get_artist_genres
 
 router = APIRouter()
 
+
 @router.get("/login", tags=["Spotify"], summary="Spotify login")
 def login():
     from backend.utils import get_spotify_oauth
+
     sp_oauth = get_spotify_oauth()
     return RedirectResponse(sp_oauth.get_authorize_url())
 
+
 @router.get("/callback")
 async def spotify_callback(code: str):
-    # exchange code for token...
-    token = get_spotify_token_from_code(code)  # Your existing logic
+    token = get_user_profile_and_tokens(code)
     sp = spotipy.Spotify(auth=token["access_token"])
     user = sp.current_user()
 
     user_id = user["id"]
     mongo_user = users_collection.find_one({"user_id": user_id})
 
-    # 👇 Check if they've already onboarded
     if mongo_user and mongo_user.get("onboarded"):
-        return RedirectResponse(url=f"/home")
+        return RedirectResponse(url=f"/home?user_id={user_id}")
     else:
         return RedirectResponse(url=f"/onboard?user_id={user_id}")
 
-@router.get("/refresh_token", tags=["Spotify"], summary="Get the current user's refresh token")
+
+@router.get(
+    "/refresh_token", tags=["Spotify"], summary="Get the current user's refresh token"
+)
 def refresh(refresh_token: str = Query(...)):
     from backend.utils import get_spotify_oauth
+
     sp_oauth = get_spotify_oauth()
     refreshed = sp_oauth.refresh_access_token(refresh_token)
     return {
         "access_token": refreshed["access_token"],
-        "expires_in": refreshed["expires_in"]
+        "expires_in": refreshed["expires_in"],
     }
 
-@router.get("/recently-played", tags=["Spotify"], summary="Get the current user's recently-played")
+
+@router.get(
+    "/recently-played",
+    tags=["Spotify"],
+    summary="Get the current user's recently-played",
+)
 def get_recently_played(access_token: str = Depends(get_token), limit: int = 10):
     sp = spotipy.Spotify(auth=access_token)
     try:
@@ -58,6 +69,7 @@ def get_recently_played(access_token: str = Depends(get_token), limit: int = 10)
     except Exception as e:
         print(f"⚠️ Recently played error: {e}")
         return {"recently_played": False}
+
 
 @router.get("/playback", tags=["Spotify"], summary="Playback control and reader")
 def get_playback_state(access_token: str = Depends(get_token)):
@@ -78,8 +90,8 @@ def get_playback_state(access_token: str = Depends(get_token)):
                         "name": track["name"],
                         "artist": track["artists"][0]["name"],
                         "album": track["album"]["name"],
-                        "external_url": track["external_urls"]["spotify"]
-                    }
+                        "external_url": track["external_urls"]["spotify"],
+                    },
                 }
             }
 
@@ -94,8 +106,12 @@ def get_playback_state(access_token: str = Depends(get_token)):
                     "artist": track["artists"][0]["name"],
                     "album": track["album"]["name"],
                     "external_url": track["external_urls"]["spotify"],
-                    "album_art_url": track["album"]["images"][0]["url"] if track["album"]["images"] else None
-                }
+                    "album_art_url": (
+                        track["album"]["images"][0]["url"]
+                        if track["album"]["images"]
+                        else None
+                    ),
+                },
             }
         }
 
@@ -103,14 +119,24 @@ def get_playback_state(access_token: str = Depends(get_token)):
         print(f"⚠️ Playback error: {e}")
         return {"playback": False}
 
-@router.get("/playlists", tags=["Spotify"], summary="Get current user's Spotify playlists")
+
+@router.get(
+    "/playlists", tags=["Spotify"], summary="Get current user's Spotify playlists"
+)
 def get_playlists(access_token: str = Depends(get_token)):
     sp = spotipy.Spotify(auth=access_token)
     raw = sp.current_user_playlists()
     return {"items": [simplify_playlist_data(p) for p in raw["items"]]}
 
-@router.get("/top-tracks", tags=["Spotify"], summary="Get current user's top tracks playlists")
-def get_top_tracks(access_token: str = Depends(get_token), limit: int = 10, time_range: str = "medium_term"):
+
+@router.get(
+    "/top-tracks", tags=["Spotify"], summary="Get current user's top tracks playlists"
+)
+def get_top_tracks(
+    access_token: str = Depends(get_token),
+    limit: int = 10,
+    time_range: str = "medium_term",
+):
     print("🔥 In get_top_tracks endpoint")
     sp = spotipy.Spotify(auth=access_token)
     top_tracks = sp.current_user_top_tracks(limit=limit, time_range=time_range)
@@ -124,21 +150,24 @@ def get_top_tracks(access_token: str = Depends(get_token), limit: int = 10, time
                 "album": track["album"]["name"],
                 "external_url": track["external_urls"]["spotify"],
                 "isrc": track.get("external_ids", {}).get("isrc"),
-                "genres": get_artist_genres(sp, track["artists"], artist_genre_cache)
+                "genres": get_artist_genres(sp, track["artists"], artist_genre_cache),
             }
             for track in top_tracks["items"]
         ]
     }
+
 
 @router.post("/play", tags=["Spotify"], summary="Plays current track")
 def start_playback(access_token: str = Depends(get_token)):
     spotipy.Spotify(auth=access_token).start_playback()
     return {"status": "playing"}
 
+
 @router.post("/pause", tags=["Spotify"], summary="Pauses current track")
 def pause_playback(access_token: str = Depends(get_token)):
     spotipy.Spotify(auth=access_token).pause_playback()
     return {"status": "paused"}
+
 
 @router.get("/playlist-info", tags=["Spotify"], summary="Get playlist info of a song")
 def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
@@ -147,5 +176,5 @@ def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
     playlist = sp.playlist(playlist_id)
     return {
         "name": playlist["name"],
-        "image": playlist["images"][0]["url"] if playlist["images"] else None
+        "image": playlist["images"][0]["url"] if playlist["images"] else None,
     }

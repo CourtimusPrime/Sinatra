@@ -1,4 +1,13 @@
 // frontend/js/home.js
+
+const params = new URLSearchParams(window.location.search);
+const userIdFromUrl = params.get("user_id");
+
+if (userIdFromUrl) {
+  console.log("🆔 Saving user_id from URL:", userIdFromUrl);
+  localStorage.setItem("user_id", userIdFromUrl);
+}
+
 const userId = localStorage.getItem("user_id");
 if (!userId) {
   window.location.href = "/";
