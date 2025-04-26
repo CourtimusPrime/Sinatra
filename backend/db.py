@@ -7,5 +7,5 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client = MongoClient(os.getenv("MONGODB_URI"))
-db = client.spotify_app  # database name
+db = client.spotify_app
 users_collection = db.users

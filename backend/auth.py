@@ -6,10 +6,10 @@ from backend.utils import get_spotify_oauth
 
 sp_oauth = get_spotify_oauth()
 
-def get_token(user_id: str = Query(...)):
-    user = users_collection.find_one({"user_id": user_id})
+def get_token(access_token: str = Query(...)):
+    user = users_collection.find_one({"access_token": access_token})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="access_token not found in cache! -\(o.o)/-")
 
     token_info = {
         "access_token": user["access_token"],
@@ -20,12 +20,12 @@ def get_token(user_id: str = Query(...)):
     if sp_oauth.is_token_expired(token_info):
         refreshed = sp_oauth.refresh_access_token(user["refresh_token"])
         users_collection.update_one(
-            {"user_id": user_id},
+            {"access_token": access_token},
             {"$set": {
-                "access_token": refreshed["access_token"],
+                "refresh_token": refreshed["refresh_token"],
                 "expires_at": refreshed["expires_at"]
             }}
         )
-        return refreshed["access_token"]
+        return refreshed["refresh_token"]
 
     return user["access_token"]
