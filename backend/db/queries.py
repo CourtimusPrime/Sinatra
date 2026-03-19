@@ -152,30 +152,71 @@ def upsert_tokens(spotify_id: str, access_token: str, refresh_token: str, expire
             conn.commit()
 
 
-# ── Sessions (auth.js) ──────────────────────────────────────
+# ── Sessions ─────────────────────────────────────────────────
 
 
-def get_user_by_session(session_token: str) -> dict | None:
+def ensure_sessions_table() -> None:
+    """Create the sessions table if it doesn't exist."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users.sessions (
+                    session_id text PRIMARY KEY,
+                    user_id bigint NOT NULL REFERENCES users.profiles(user_id) ON DELETE CASCADE,
+                    expires_at timestamptz NOT NULL,
+                    created_at timestamptz NOT NULL DEFAULT now()
+                )
+            """)
+            conn.commit()
+
+
+def create_session(spotify_id: str, session_id: str, expires_at) -> None:
+    """Insert a new session row for the given user."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            uid = _require_user_pk(cur, spotify_id)
+            cur.execute(
+                """
+                INSERT INTO users.sessions (session_id, user_id, expires_at)
+                VALUES (%s, %s, %s)
+                """,
+                (session_id, uid, expires_at),
+            )
+            conn.commit()
+
+
+def get_session_user(session_id: str) -> str | None:
+    """Return the spotify_id for a valid, non-expired session."""
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT p.spotify_id, p.display_name, p.profile_image_url, p.theme
+                SELECT p.spotify_id
                 FROM users.sessions s
                 JOIN users.profiles p ON s.user_id = p.user_id
-                WHERE s.session_token = %s AND s.expires > now()
+                WHERE s.session_id = %s AND s.expires_at > now()
                 """,
-                (session_token,),
+                (session_id,),
             )
             row = cur.fetchone()
-            if not row:
-                return None
-            return {
-                "user_id": row["spotify_id"],
-                "display_name": row["display_name"],
-                "profile_image_url": row["profile_image_url"],
-                "theme": row["theme"],
-            }
+            return row["spotify_id"] if row else None
+
+
+def delete_session(session_id: str) -> None:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM users.sessions WHERE session_id = %s", (session_id,))
+            conn.commit()
+
+
+def cleanup_expired_sessions() -> int:
+    """Delete all expired sessions. Returns count deleted."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM users.sessions WHERE expires_at < now()")
+            count = cur.rowcount
+            conn.commit()
+    return count
 
 
 # ── Playlists ────────────────────────────────────────────────

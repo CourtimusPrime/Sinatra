@@ -3,14 +3,21 @@ import base64
 import json
 import logging
 import os
+import time
 
 import spotipy
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from spotipy.exceptions import SpotifyException
 
+from core.rate_limit import limiter
 from db import queries as q
-from services.cookie import decode, encode
+from services.session import (
+    SESSION_COOKIE,
+    create_session,
+    delete_session,
+    get_user_id_from_request,
+)
 from services.spotify_auth import get_spotify_oauth
 from services.token import refresh_user_token
 
@@ -34,7 +41,8 @@ def safe_b64decode(data: str):
 
 
 @router.get("/login")
-async def login():
+@limiter.limit("10/minute")
+async def login(request: Request):
     frontend_redirect_uri = PRO_BASE_URL + "/home" if not IS_DEV else DEV_BASE_URL + "/home"
 
     state_payload = json.dumps({"redirect_uri": frontend_redirect_uri})
@@ -48,6 +56,7 @@ async def login():
 
 
 @router.get("/callback")
+@limiter.limit("10/minute")
 async def callback(request: Request):
     code = request.query_params.get("code")
     state = request.query_params.get("state")
@@ -98,14 +107,13 @@ async def callback(request: Request):
         token_info["expires_at"],
     )
 
-    # Build redirect response with secure, server-set cookie
-    frontend_base = DEV_BASE_URL if IS_DEV else PRO_BASE_URL
-    redirect_url = f"{frontend_base}/home"
-    response = RedirectResponse(url=redirect_url)
+    # Create DB session and set opaque cookie
+    session_token = create_session(user_id)
 
+    response = RedirectResponse(url=redirect_uri)
     response.set_cookie(
-        key="sinatra_user_id",
-        value=encode(user_id),
+        key=SESSION_COOKIE,
+        value=session_token,
         httponly=True,
         secure=not IS_DEV,
         samesite="None" if not IS_DEV else "Lax",
@@ -113,7 +121,7 @@ async def callback(request: Request):
         max_age=3600 * 24 * 7,
     )
 
-    logger.debug("Set sinatra_user_id cookie for user %s", user_id)
+    logger.debug("Created session for user %s", user_id)
     return response
 
 
@@ -133,10 +141,15 @@ def refresh_session(user_id: str = Query(...)):
 
 
 @router.get("/logout")
-def logout_user():
+@limiter.limit("10/minute")
+def logout_user(request: Request):
+    session_token = request.cookies.get(SESSION_COOKIE)
+    if session_token:
+        delete_session(session_token)
+
     response = JSONResponse({"message": "Logged out"})
     response.delete_cookie(
-        key="sinatra_user_id",
+        key=SESSION_COOKIE,
         path="/",
         samesite="None" if not IS_DEV else "Lax",
         secure=not IS_DEV,
@@ -146,18 +159,11 @@ def logout_user():
 
 @router.get("/whoami")
 def whoami(request: Request):
-    all_cookies = request.cookies
-    cookie_val = all_cookies.get("sinatra_user_id")
-    user_id = None
-    if cookie_val:
-        try:
-            user_id = decode(cookie_val)
-        except Exception:
-            user_id = None
-
-    if not user_id:
+    try:
+        user_id = get_user_id_from_request(request)
+    except HTTPException:
         return JSONResponse(
-            {"message": "No sinatra_user_id cookie found"},
+            {"message": "Not authenticated"},
             status_code=401,
         )
 
@@ -169,8 +175,49 @@ def whoami(request: Request):
         )
 
     return {
-        "message": "User identified via cookie",
+        "message": "User identified via session",
         "user_id": user_id,
         "display_name": user.get("display_name"),
         "profile_image_url": user.get("profile_image_url"),
+        "registered": user.get("registered"),
     }
+
+
+@router.post("/dev/login")
+@limiter.limit("10/minute")
+async def dev_login(request: Request):
+    """Dev-only: create a test user with a session, no Spotify required."""
+    if not IS_DEV:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    timestamp = int(time.time())
+    spotify_id = f"dev-user-{timestamp}"
+    display_name = f"Dev User {timestamp}"
+
+    # Create user profile
+    q.upsert_user(spotify_id, display_name)
+    q.set_user_registered(spotify_id)
+
+    # Create fake tokens
+    q.upsert_tokens(spotify_id, "fake-access-token", "fake-refresh-token", timestamp + 3600)
+
+    # Create session
+    session_token = create_session(spotify_id)
+
+    response = JSONResponse(
+        {
+            "user_id": spotify_id,
+            "display_name": display_name,
+            "message": "Dev user created with session",
+        }
+    )
+    response.set_cookie(
+        key=SESSION_COOKIE,
+        value=session_token,
+        httponly=True,
+        secure=False,
+        samesite="Lax",
+        path="/",
+        max_age=3600 * 24 * 7,
+    )
+    return response

@@ -5,8 +5,6 @@ import { useUser } from '../context/UserContext';
 import { apiGet, apiDelete, apiPost } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
 import { motion } from '@motionone/react';
-import { signOut } from '../lib/auth-client';
-
 import UserHeader from '../components/UserHeader';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
 import FeaturedPlaylists from '../components/FeaturedPlaylists';
@@ -116,10 +114,14 @@ function Home() {
     }
   }
 
-  function logout() {
+  async function logout() {
     localStorage.clear();
-    document.cookie = 'sinatra_user_id=; path=/; max-age=0';
-    signOut({ callbackUrl: '/' });
+    try {
+      await apiGet('/logout');
+    } catch {
+      // Ignore errors during logout
+    }
+    window.location.href = '/';
   }
 
   async function deleteAccount() {

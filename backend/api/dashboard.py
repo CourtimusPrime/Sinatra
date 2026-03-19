@@ -4,8 +4,8 @@ import logging
 from fastapi import APIRouter, HTTPException, Request
 
 from db import queries as q
-from services.cookie import get_user_id_from_request
 from services.music.track_utils import apply_meta_gradients
+from services.session import get_user_id_from_request
 
 logger = logging.getLogger(__name__)
 

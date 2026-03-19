@@ -6,10 +6,10 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, Request
 
 from db import queries as q
-from services.cookie import get_user_id_from_request
 from services.music import wizard
 from services.music.meta_gradients import gradients
 from services.music.wizard import get_gradient_for_genre
+from services.session import get_user_id_from_request
 from services.token import get_token, get_token_by_user_id
 
 logger = logging.getLogger(__name__)

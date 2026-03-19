@@ -2,7 +2,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { apiGet } from '../utils/api';
-import { getSession } from '../lib/auth-client';
 
 const UserContext = createContext();
 
@@ -13,20 +12,13 @@ export function UserProvider({ children }) {
 
   async function login() {
     try {
-      const authSession = await getSession();
-      if (!authSession) {
-        setLoading(false);
-        return;
-      }
-
-      // Set cookie for backward compatibility with Python backend
-      document.cookie = `sinatra_user_id=${authSession.user.id}; path=/; max-age=2592000; SameSite=Lax`;
-
-      // Fetch full user data from backend
       const session = await apiGet('/session');
       setUser(session);
     } catch (err) {
-      console.error('Login failed:', err);
+      // 401 means not logged in — that's expected on landing page
+      if (!err.message?.includes('401')) {
+        console.error('Session fetch failed:', err);
+      }
     } finally {
       setLoading(false);
     }

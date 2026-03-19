@@ -32,9 +32,8 @@ function Onboard() {
   useEffect(() => {
     const init = async () => {
       try {
-        const spotifyRes = await apiGet(
-          `/spotify-me?user_id=${searchParams.get('user_id')}`
-        );
+        const uid = searchParams.get('user_id') || user?.user_id;
+        const spotifyRes = await apiGet(`/spotify-me?user_id=${uid}`);
         setSpotifyUser(spotifyRes);
         setOnboardData((prev) => ({
           ...prev,

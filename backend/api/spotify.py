@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from spotipy.exceptions import SpotifyException
 
 from services.spotify_auth import get_artist_genres
-from services.token import get_token
+from services.token import get_token, get_token_by_user_id
 
 router = APIRouter(tags=["spotify"])
 
@@ -41,7 +41,7 @@ def get_top_tracks(
 @router.get("/spotify-me")
 def get_spotify_me(user_id: str = Query(...)):
     try:
-        access_token = get_token(user_id)
+        access_token = get_token_by_user_id(user_id)
         sp = spotipy.Spotify(auth=access_token)
         return sp.current_user()
     except SpotifyException:

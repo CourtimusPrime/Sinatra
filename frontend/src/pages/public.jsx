@@ -10,7 +10,6 @@ import { motion } from '@motionone/react';
 import { Share } from 'lucide-react';
 import Spotify from '../assets/spotify.svg';
 import UserHeader from '../components/UserHeader';
-import { signIn } from '../lib/auth-client';
 
 // Lazy-loaded components
 const MusicTaste = lazy(() => import('../components/music/MusicTaste'));
@@ -30,8 +29,9 @@ export default function PublicProfile() {
   const [copied, setCopied] = useState(false);
   const [isAllModalOpen, setAllModalOpen] = useState(false);
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
   const handleLogin = () => {
-    signIn('spotify', { callbackUrl: '/home' });
+    window.location.href = `${API_BASE}/login`;
   };
 
   useEffect(() => {

@@ -6,8 +6,8 @@ from fastapi import APIRouter, Body, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 
 from db import queries as q
-from services.cookie import get_user_id_from_request
 from services.music.track_utils import apply_meta_gradients
+from services.session import SESSION_COOKIE, get_user_id_from_request
 from services.token import get_token, get_token_by_user_id
 
 logger = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ def delete_user(request: Request, user_id: str = Query(...)):
     q.delete_user(user_id)
 
     response = JSONResponse(content={"status": "deleted"})
-    response.delete_cookie("sinatra_user_id", path="/")
+    response.delete_cookie(SESSION_COOKIE, path="/")
     return response
 
 
@@ -157,6 +157,7 @@ def get_session(request: Request):
         "display_name": user.get("display_name"),
         "profile_image_url": user.get("profile_image_url"),
         "theme": user.get("theme", "default"),
+        "registered": user.get("registered"),
         "playlists": {
             "all": all_playlists,
             "featured": featured_playlists,

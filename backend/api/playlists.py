@@ -6,7 +6,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 
 from db import queries as q
 from models.playlists import FeaturedPlaylistsUpdateRequest
-from services.cookie import get_user_id_from_request
+from services.session import get_user_id_from_request
 from services.token import get_token, get_token_by_user_id
 
 logger = logging.getLogger(__name__)

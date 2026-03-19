@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import Spotify from '../assets/spotify.svg';
 import Loader from '../components/Loader';
-import { signIn } from '../lib/auth-client';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 function Landing() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ function Landing() {
   }
 
   const handleLogin = () => {
-    signIn('spotify', { callbackUrl: '/home' });
+    window.location.href = `${API_BASE}/login`;
   };
 
   return (

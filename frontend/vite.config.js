@@ -4,55 +4,7 @@ import react from '@vitejs/plugin-react';
 import compression from 'vite-plugin-compression';
 import path from 'path';
 
-const API_PROXY_PATHS = [
-  '/me',
-  '/genres',
-  '/impersonate',
-  '/now-playing',
-  '/update-playing',
-  '/public-genres',
-  '/check-recent',
-  '/playlists',
-  '/recently-played',
-  '/synced-playlists',
-  '/dashboard',
-  '/public-track',
-  '/user-playlists',
-  '/complete-onboarding',
-  '/playback',
-  '/delete-user',
-  '/public-update-playing',
-  '/public-played',
-  '/ai-genres',
-  '/public-playlist',
-  '/playlist-info',
-  '/admin/sync_playlists',
-  '/spotify-playlists',
-  '/all-playlists',
-  '/docs',
-  '/openapi.json',
-  '/redoc',
-  '/static',
-  '/status',
-  '/add-playlists',
-  '/delete-playlists',
-  '/update-featured',
-  '/top-tracks',
-  '/top-subgenre',
-  '/analyze-genres',
-  '/session',
-  '/genre-map',
-  '/users',
-  '/user-genres',
-  '/public-profile',
-  '/health',
-  '/refresh_genres',
-  '/spotify-me',
-  '/whoami',
-];
-
 const BACKEND_URL = 'http://localhost:8000';
-const AUTH_URL = 'http://localhost:3001';
 
 export default defineConfig({
   plugins: [
@@ -72,10 +24,10 @@ export default defineConfig({
   base: '/',
   server: {
     proxy: {
-      '/api/auth': AUTH_URL,
-      ...Object.fromEntries(
-        API_PROXY_PATHS.map((p) => [p, BACKEND_URL])
-      ),
+      '/api': {
+        target: BACKEND_URL,
+        changeOrigin: true,
+      },
     },
   },
   build: {

@@ -5,7 +5,7 @@ import spotipy
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from db import queries as q
-from services.cookie import get_user_id_from_request
+from services.session import get_user_id_from_request
 from services.spotify import build_track_data
 from services.token import get_token
 
@@ -55,12 +55,10 @@ def get_recently_played(request: Request, access_token: str = Depends(get_token)
         track_data = build_track_data(track, sp)
 
         user_id = None
-        cookie_val = request.cookies.get("sinatra_user_id")
-        if cookie_val:
-            try:
-                user_id = get_user_id_from_request(request)
-            except HTTPException:
-                user_id = None
+        try:
+            user_id = get_user_id_from_request(request)
+        except HTTPException:
+            user_id = None
 
         if user_id:
             existing = q.get_last_played(user_id)

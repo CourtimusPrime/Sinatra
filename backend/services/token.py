@@ -2,7 +2,7 @@
 from fastapi import HTTPException, Request
 
 from db import queries as q
-from services.cookie import get_user_id_from_request
+from services.session import get_user_id_from_request
 from services.spotify_auth import get_spotify_oauth
 
 
