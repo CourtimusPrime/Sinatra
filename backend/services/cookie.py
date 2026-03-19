@@ -6,9 +6,15 @@ import os
 
 from fastapi import HTTPException, Request
 
+_NODE_ENV = os.getenv("NODE_ENV", "development").lower()
+
 SECRET = os.getenv("COOKIE_SECRET")
 if not SECRET:
-    raise RuntimeError("COOKIE_SECRET environment variable must be set")
+    if _NODE_ENV == "development":
+        import secrets
+        SECRET = secrets.token_hex(32)
+    else:
+        raise RuntimeError("COOKIE_SECRET environment variable must be set in production")
 
 
 def _sign(value: str) -> str:

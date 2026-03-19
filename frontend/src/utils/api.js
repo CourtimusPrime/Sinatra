@@ -51,15 +51,4 @@ export async function apiDelete(path, options = {}) {
   return await res.json();
 }
 
-export async function apiLogout() {
-  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/logout`, {
-    method: 'GET',
-    credentials: 'include',
-  });
 
-  if (!res.ok) {
-    throw new Error(`Logout failed: ${res.status}`);
-  }
-
-  return await res.json();
-}

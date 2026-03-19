@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(uv run:*)",
+      "Bash(uv pip:*)"
+    ]
+  },
   "enabledPlugins": {
     "python-development@claude-code-workflows": true,
     "javascript-typescript@claude-code-workflows": true

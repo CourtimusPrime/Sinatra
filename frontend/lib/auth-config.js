@@ -1,7 +1,9 @@
 import Spotify from '@auth/core/providers/spotify';
 import { SinatraAdapter, upsertTokens } from './auth-adapter.js';
 
-async function refreshSpotifyToken(token) {
+const MAX_RETRIES = 3;
+
+async function refreshSpotifyToken(token, attempt = 0) {
   try {
     const res = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
@@ -13,8 +15,16 @@ async function refreshSpotifyToken(token) {
         client_secret: process.env.SPOTIFY_CLIENT_SECRET,
       }),
     });
+
+    if (res.status === 429 && attempt < MAX_RETRIES) {
+      const retryAfter = Number(res.headers.get('Retry-After')) || 1;
+      const backoff = retryAfter * 1000 * Math.pow(2, attempt);
+      await new Promise((r) => setTimeout(r, backoff));
+      return refreshSpotifyToken(token, attempt + 1);
+    }
+
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Token refresh failed');
+    if (!res.ok) throw new Error(data.error || `Token refresh failed (${res.status})`);
 
     const refreshed = {
       ...token,
