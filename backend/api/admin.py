@@ -1,9 +1,10 @@
 # api/admin.py
-from fastapi import APIRouter, Query, HTTPException
-from db.mongo import users_collection, playlists_collection
-from services.token import get_token
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 import spotipy
+from fastapi import APIRouter, Query
+
+from db.mongo import playlists_collection, users_collection
 from services.spotify import get_spotify_client
 
 router = APIRouter(tags=["admin"])
@@ -84,7 +85,7 @@ def sync_playlists(user_id: str = Query(...)):
             "$set": {
                 "user_id": user_id,
                 "playlists": all_playlists,
-                "last_updated": datetime.now(timezone.utc),
+                "last_updated": datetime.now(UTC),
             }
         },
         upsert=True,

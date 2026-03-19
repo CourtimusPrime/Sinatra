@@ -1,7 +1,9 @@
 # api/vercel.py
+import logging
+import os
+
+import requests
 from fastapi import APIRouter
-from datetime import datetime
-import os, requests, logging
 
 router = APIRouter(tags=["vercel"])
 
@@ -16,7 +18,9 @@ def get_vercel_status():
     headers = {"Authorization": f"Bearer {VERCEL_TOKEN}"}
 
     try:
-        deployments_url = f"{base_url}/v6/deployments?projectId={VERCEL_PROJECT}&teamId={VERCEL_TEAM}&limit=1"
+        deployments_url = (
+            f"{base_url}/v6/deployments?projectId={VERCEL_PROJECT}&teamId={VERCEL_TEAM}&limit=1"
+        )
         deployments_res = requests.get(deployments_url, headers=headers)
         deployments_res.raise_for_status()
         deployments_data = deployments_res.json()

@@ -1,15 +1,15 @@
 # services/music/track_utils.py
 
-from typing import Dict, List
-from .wizard import get_parent_genre, get_gradient_for_genre
+
+from .wizard import get_gradient_for_genre, get_parent_genre
 
 
-def apply_meta_gradients(track: Dict) -> Dict:
+def apply_meta_gradients(track: dict) -> dict:
     """Return a copy of the track with genres mapped to meta genres with gradients."""
     if not isinstance(track, dict):
         return track
 
-    raw_genres: List[str] = track.get("genres") or []
+    raw_genres: list[str] = track.get("genres") or []
     meta_entries = []
     seen = set()
 

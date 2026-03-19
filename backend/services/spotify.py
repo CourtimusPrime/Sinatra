@@ -1,14 +1,10 @@
 # services/spotify.py
+from datetime import UTC, datetime
+
 import spotipy
-from services.token import get_token
+
 from services.spotify_auth import get_artist_genres
 from services.token import get_token_by_user_id
-from datetime import datetime, timezone
-
-
-def get_spotify_client(user_id: str) -> spotipy.Spotify:
-    access_token = get_token(user_id)
-    return spotipy.Spotify(auth=access_token)
 
 
 def enrich_playlist(sp: spotipy.Spotify, playlist_id: str) -> dict:
@@ -22,9 +18,7 @@ def enrich_playlist(sp: spotipy.Spotify, playlist_id: str) -> dict:
     }
 
 
-def simplify_track_with_genres(
-    sp: spotipy.Spotify, track: dict, genre_cache: dict
-) -> dict:
+def simplify_track_with_genres(sp: spotipy.Spotify, track: dict, genre_cache: dict) -> dict:
     return {
         "name": track["name"],
         "artists": [a["name"] for a in track["artists"]],
@@ -55,5 +49,5 @@ def build_track_data(track, sp):
             track["album"]["images"][0]["url"] if track["album"].get("images") else None
         ),
         "genres": genres,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }

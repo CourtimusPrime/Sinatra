@@ -1,10 +1,11 @@
 # db/mongo.py
 import os
-from pymongo import MongoClient
 from functools import lru_cache
 
+from pymongo import MongoClient
 
-@lru_cache()
+
+@lru_cache
 def get_mongo_client():
     uri = os.getenv("MONGODB_URI")
     if not uri:
@@ -12,7 +13,7 @@ def get_mongo_client():
     return MongoClient(uri)
 
 
-@lru_cache()
+@lru_cache
 def get_db():
     db_name = os.getenv("MONGODB_DB", "sinatra")
     return get_mongo_client()[db_name]

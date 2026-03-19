@@ -1,13 +1,16 @@
 # api/auth.py
-from fastapi import APIRouter, Request, Query, HTTPException
-from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
-import base64, json, os
+import base64
+import json
+import os
+
 import spotipy
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from spotipy.exceptions import SpotifyException
 
-from services.spotify_auth import get_spotify_oauth
-from services.cookie import encode, decode
 from db.mongo import users_collection
+from services.cookie import decode, encode
+from services.spotify_auth import get_spotify_oauth
 from services.token import refresh_user_token
 
 router = APIRouter(tags=["auth"])
@@ -28,9 +31,7 @@ def safe_b64decode(data: str):
 @router.get("/login")
 async def login():
     # Redirect URI for frontend to land on after auth finishes
-    frontend_redirect_uri = (
-        PRO_BASE_URL + "/home" if not IS_DEV else DEV_BASE_URL + "/home"
-    )
+    frontend_redirect_uri = PRO_BASE_URL + "/home" if not IS_DEV else DEV_BASE_URL + "/home"
 
     # Encode that into state so /callback knows where to send user
     state_payload = json.dumps({"redirect_uri": frontend_redirect_uri})

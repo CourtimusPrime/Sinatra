@@ -1,5 +1,8 @@
 # services/vercel.py
-import os, requests, logging
+import logging
+import os
+
+import requests
 
 VERCEL_TOKEN = os.getenv("VERCEL_TOKEN")
 VERCEL_PROJECT = os.getenv("VERCEL_PROJECT")
@@ -11,7 +14,9 @@ def get_vercel_status():
     headers = {"Authorization": f"Bearer {VERCEL_TOKEN}"}
 
     try:
-        deployments_url = f"{base_url}/v6/deployments?projectId={VERCEL_PROJECT}&teamId={VERCEL_TEAM}&limit=1"
+        deployments_url = (
+            f"{base_url}/v6/deployments?projectId={VERCEL_PROJECT}&teamId={VERCEL_TEAM}&limit=1"
+        )
         res = requests.get(deployments_url, headers=headers)
         res.raise_for_status()
         deployments = res.json().get("deployments", [])

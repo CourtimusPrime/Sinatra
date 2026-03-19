@@ -1,28 +1,21 @@
 # api/genres.py
-from fastapi import APIRouter, Query, HTTPException
+import json
+import traceback
+from datetime import UTC, datetime
+from pathlib import Path
+
+from fastapi import APIRouter, HTTPException, Request
+
 from db.mongo import users_collection
-from services.token import get_token
-from services.spotify_auth import get_spotify_oauth
-from services.music import wizard
-from services.music import meta_gradients
-from datetime import datetime, timezone
-from services.music.wizard import get_gradient_for_genre
-from services.music.meta_gradients import gradients
-from fastapi import Request
-from services.token import get_token_by_user_id
 from services.cookie import get_user_id_from_request
-
-
-import os, json, traceback
+from services.music import wizard
+from services.music.meta_gradients import gradients
+from services.music.wizard import get_gradient_for_genre
+from services.token import get_token, get_token_by_user_id
 
 router = APIRouter(tags=["genres"])
 
-import json
-from pathlib import Path
-
-GENRE_MAP_PATH = (
-    Path(__file__).resolve().parent.parent / "services" / "music" / "genre-map.json"
-)
+GENRE_MAP_PATH = Path(__file__).resolve().parent.parent / "services" / "music" / "genre-map.json"
 
 
 @router.get("/genres")
@@ -69,9 +62,7 @@ def analyze_user_genres(user_id: str, access_token: str):
     top_artists = []
     for offset in (0, 50, 100, 150):
         try:
-            batch = sp.current_user_top_artists(
-                limit=50, offset=offset, time_range="short_term"
-            )
+            batch = sp.current_user_top_artists(limit=50, offset=offset, time_range="short_term")
             top_artists.extend(batch.get("items", []))
         except Exception as e:
             print(f"⚠️ Failed to fetch top artists at offset {offset}: {e}")
@@ -120,12 +111,8 @@ def analyze_user_genres(user_id: str, access_token: str):
     top_meta = genre_map.get(top_sub.lower(), "other") if top_sub else None
 
     result = {
-        "sub_genres": dict(
-            sorted(sub_genres.items(), key=lambda x: -x[1]["portion"])[:10]
-        ),
-        "meta_genres": dict(
-            sorted(meta_genres.items(), key=lambda x: -x[1]["portion"])[:10]
-        ),
+        "sub_genres": dict(sorted(sub_genres.items(), key=lambda x: -x[1]["portion"])[:10]),
+        "meta_genres": dict(sorted(meta_genres.items(), key=lambda x: -x[1]["portion"])[:10]),
         "top_subgenre": {
             "sub_genre": top_sub,
             "parent_genre": top_meta,
@@ -138,7 +125,7 @@ def analyze_user_genres(user_id: str, access_token: str):
         {
             "$set": {
                 "genre_analysis": result,
-                "genre_last_updated": datetime.now(timezone.utc),
+                "genre_last_updated": datetime.now(UTC),
             }
         },
         upsert=True,

@@ -1,10 +1,10 @@
 # api/spotify.py
-from fastapi import APIRouter, Query, Depends, HTTPException
-from spotipy.exceptions import SpotifyException
 import spotipy
+from fastapi import APIRouter, Depends, HTTPException, Query
+from spotipy.exceptions import SpotifyException
 
-from services.token import get_token
 from services.spotify_auth import get_artist_genres
+from services.token import get_token
 
 router = APIRouter(tags=["spotify"])
 
@@ -46,6 +46,4 @@ def get_spotify_me(user_id: str = Query(...)):
         return sp.current_user()
     except SpotifyException as e:
         print(f"⚠️ Spotify /me error for {user_id}: {e}")
-        raise HTTPException(
-            status_code=401, detail="Failed to fetch Spotify user profile."
-        )
+        raise HTTPException(status_code=401, detail="Failed to fetch Spotify user profile.")

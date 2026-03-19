@@ -1,6 +1,7 @@
 # api/cookie.py
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+
 from models.shared import CookiePayload
 from services.cookie import encode
 

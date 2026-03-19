@@ -1,10 +1,11 @@
 # api/playback.py
-from fastapi import APIRouter, Query, Depends, HTTPException, Request
 import spotipy
+from fastapi import APIRouter, Depends, HTTPException, Request
+
 from db.mongo import users_collection
-from services.token import get_token
-from services.spotify import build_track_data
 from services.cookie import get_user_id_from_request
+from services.spotify import build_track_data
+from services.token import get_token
 
 router = APIRouter(tags=["playback"])
 
@@ -21,13 +22,8 @@ def get_playback_state(request: Request, access_token: str = Depends(get_token))
         if playback and playback.get("item"):
             track_data = build_track_data(playback["item"], sp)
 
-            existing = users_collection.find_one(
-                {"user_id": user_id}, {"last_played_track": 1}
-            )
-            if (
-                existing
-                and existing.get("last_played_track", {}).get("id") == track_data["id"]
-            ):
+            existing = users_collection.find_one({"user_id": user_id}, {"last_played_track": 1})
+            if existing and existing.get("last_played_track", {}).get("id") == track_data["id"]:
                 print("🟡 Track already stored, skipping update.")
                 return {"status": "unchanged", "track": track_data}
 
@@ -44,9 +40,7 @@ def get_playback_state(request: Request, access_token: str = Depends(get_token))
 
 
 @router.get("/recently-played")
-def get_recently_played(
-    request: Request, access_token: str = Depends(get_token), limit: int = 1
-):
+def get_recently_played(request: Request, access_token: str = Depends(get_token), limit: int = 1):
     sp = spotipy.Spotify(auth=access_token)
 
     try:
@@ -65,13 +59,8 @@ def get_recently_played(
             except HTTPException:
                 user_id = None
         if user_id:
-            existing = users_collection.find_one(
-                {"user_id": user_id}, {"last_played_track": 1}
-            )
-            if (
-                existing
-                and existing.get("last_played_track", {}).get("id") == track_data["id"]
-            ):
+            existing = users_collection.find_one({"user_id": user_id}, {"last_played_track": 1})
+            if existing and existing.get("last_played_track", {}).get("id") == track_data["id"]:
                 print("🟡 Track already stored, skipping update.")
                 return {"status": "unchanged", "track": track_data}
             users_collection.update_one(
@@ -82,9 +71,7 @@ def get_recently_played(
 
     except Exception as e:
         print(f"⚠️ Recently played error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to fetch recently played track"
-        )
+        raise HTTPException(status_code=500, detail="Failed to fetch recently played track")
 
 
 @router.get("/now-playing")
@@ -121,13 +108,8 @@ def update_playing(request: Request, access_token: str = Depends(get_token)):
         track_data = build_track_data(current["item"], sp)
         print("✅ Track data built:", track_data["name"], track_data["id"])
 
-        existing = users_collection.find_one(
-            {"user_id": user_id}, {"last_played_track": 1}
-        )
-        if (
-            existing
-            and existing.get("last_played_track", {}).get("id") == track_data["id"]
-        ):
+        existing = users_collection.find_one({"user_id": user_id}, {"last_played_track": 1})
+        if existing and existing.get("last_played_track", {}).get("id") == track_data["id"]:
             print("🟡 Track already stored, skipping update.")
             return {"status": "unchanged", "track": track_data}
 
@@ -140,9 +122,7 @@ def update_playing(request: Request, access_token: str = Depends(get_token)):
 
     except Exception as e:
         print(f"❌ Update playing error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to update last played track"
-        )
+        raise HTTPException(status_code=500, detail="Failed to update last played track")
 
 
 @router.get("/check-recent")

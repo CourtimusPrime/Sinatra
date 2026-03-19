@@ -1,9 +1,10 @@
 # api/dashboard.py
-from fastapi import APIRouter, Request, HTTPException
-from db.mongo import users_collection
+from fastapi import APIRouter, HTTPException, Request
+
 from api.genres import get_genres
-from services.music.track_utils import apply_meta_gradients
+from db.mongo import users_collection
 from services.cookie import get_user_id_from_request
+from services.music.track_utils import apply_meta_gradients
 
 router = APIRouter(tags=["dashboard"])
 
@@ -23,9 +24,7 @@ def get_dashboard(request: Request):
     featured_ids = playlists_data.get("featured", [])
 
     # Create a lookup for faster matching
-    playlist_lookup = {
-        pl.get("id") or pl.get("playlist_id"): pl for pl in all_playlists
-    }
+    playlist_lookup = {pl.get("id") or pl.get("playlist_id"): pl for pl in all_playlists}
     featured_playlists = [
         playlist_lookup.get(pid) for pid in featured_ids if pid in playlist_lookup
     ]

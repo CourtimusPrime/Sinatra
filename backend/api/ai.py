@@ -1,9 +1,11 @@
 # api/ai.py
+import json
+import os
+
 from fastapi import APIRouter, HTTPException, Query
 from openai import OpenAI
+
 from db.mongo import users_collection
-import os
-import json
 
 api_key = os.getenv("OPENAI_API_KEY")
 if api_key:
@@ -23,9 +25,7 @@ def chatgpt(prompt: str, model: str = "gpt-4.1-nano") -> str:
 
     try:
         messages = [{"role": "user", "content": prompt}]
-        response = client.chat.completions.create(
-            model=model, messages=messages, temperature=0.5
-        )
+        response = client.chat.completions.create(model=model, messages=messages, temperature=0.5)
         return response.choices[0].message.content
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OpenAI error: {str(e)}")
@@ -49,14 +49,14 @@ def generate_ai_genre_commentary(user_id: str = Query(...)):
 Your task is to write two witty sentences about the /
 user's music data. Your results will appear on an app that /
 examines their music taste. The user's music data is /
-delimited by three backticks. 
+delimited by three backticks.
 
 Step 1: Write one short sentence about their vibe.
 Step 2: In one sentence, write a roast about the user's top sub-genre with insider reference.
 
 Limit each sentence to 10 words maximum.
 
-Avoid using the words "genre" and "sub-genre". 
+Avoid using the words "genre" and "sub-genre".
 
 Frame your response to be directed to the user.
 
@@ -71,8 +71,6 @@ Format your results as a JSON object with "sen-#" and /
     try:
         parsed = json.loads(result)
     except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=500, detail="OpenAI response was not valid JSON"
-        )
+        raise HTTPException(status_code=500, detail="OpenAI response was not valid JSON")
 
     return {"result": parsed}

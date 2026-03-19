@@ -1,9 +1,10 @@
 # backend/services/cookie.py
-import os
-import hmac
-import hashlib
 import base64
-from fastapi import Request, HTTPException
+import hashlib
+import hmac
+import os
+
+from fastapi import HTTPException, Request
 
 SECRET = os.getenv("COOKIE_SECRET", "dev-secret")
 
@@ -33,12 +34,8 @@ def decode(cookie_value: str) -> str:
 def get_user_id_from_request(request: Request) -> str:
     cookie = request.cookies.get("sinatra_user_id")
     if not cookie:
-        raise HTTPException(
-            status_code=401, detail="🤷‍♂️ Missing sinatra_user_id cookie"
-        )
+        raise HTTPException(status_code=401, detail="🤷‍♂️ Missing sinatra_user_id cookie")
     try:
         return decode(cookie)
     except ValueError:
-        raise HTTPException(
-            status_code=401, detail="🙅‍♂️ Invalid sinatra_user_id cookie"
-        )
+        raise HTTPException(status_code=401, detail="🙅‍♂️ Invalid sinatra_user_id cookie")

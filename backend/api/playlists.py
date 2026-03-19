@@ -1,20 +1,13 @@
 # api/playlists.py
-from fastapi import APIRouter, Query, HTTPException, Body
-from models.shared import CookiePayload, UserIdPayload, OnboardingPayload
+
+import spotipy
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
+
+from db.mongo import playlists_collection, users_collection
 from models.playlists import (
-    PlaylistSummary,
-    PlaylistID,
-    SaveAllPlaylistsRequest,
     FeaturedPlaylistsUpdateRequest,
 )
-from typing import List
-import spotipy
-from fastapi import Request, Depends
-from services.token import get_token
-from models.playlists import FeaturedPlaylistsUpdateRequest
 from services.cookie import get_user_id_from_request
-
-from db.mongo import users_collection, playlists_collection
 from services.token import get_token
 
 router = APIRouter(tags=["playlists"])
@@ -79,9 +72,7 @@ async def add_playlists(
                 {
                     "id": pl["id"],
                     "name": playlist["name"],
-                    "image": (
-                        playlist["images"][0]["url"] if playlist["images"] else None
-                    ),
+                    "image": (playlist["images"][0]["url"] if playlist["images"] else None),
                     "tracks": playlist["tracks"]["total"],
                     "external_url": playlist["external_urls"]["spotify"],
                 }
@@ -171,9 +162,7 @@ def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
 def get_user_playlists(user_id: str = Query(...)):
     doc = playlists_collection.find_one({"user_id": user_id})
     if not doc:
-        raise HTTPException(
-            status_code=404, detail="No synced playlists found for user."
-        )
+        raise HTTPException(status_code=404, detail="No synced playlists found for user.")
 
     return {
         "user_id": doc["user_id"],
@@ -183,9 +172,7 @@ def get_user_playlists(user_id: str = Query(...)):
 
 
 @router.get("/synced-playlists/paginated")
-def get_paginated_playlists(
-    user_id: str = Query(...), offset: int = 0, limit: int = 50
-):
+def get_paginated_playlists(user_id: str = Query(...), offset: int = 0, limit: int = 50):
     doc = playlists_collection.find_one({"user_id": user_id})
     if not doc:
         raise HTTPException(status_code=404, detail="No synced playlists found.")

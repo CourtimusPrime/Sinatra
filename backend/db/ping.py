@@ -1,5 +1,6 @@
 # db/ping.py
 from pymongo.errors import ConnectionFailure
+
 from db.mongo import get_mongo_client
 
 client = get_mongo_client()

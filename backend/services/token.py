@@ -1,8 +1,9 @@
 # services/token.py
-from fastapi import HTTPException, Request, Depends
-from services.spotify_auth import get_spotify_oauth
+from fastapi import HTTPException, Request
+
 from db.mongo import users_collection
 from services.cookie import get_user_id_from_request
+from services.spotify_auth import get_spotify_oauth
 
 
 def get_token(request: Request) -> str:

@@ -1,13 +1,15 @@
 # api/user.py
-from fastapi import APIRouter, Request, HTTPException, Query, Body
-from fastapi.responses import JSONResponse
-from db.mongo import users_collection, playlists_collection
-from services.token import get_token
 from datetime import datetime
+
 import spotipy
-from services.cookie import get_user_id_from_request
+from fastapi import APIRouter, Body, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
+
 from api.genres import get_genres
+from db.mongo import playlists_collection, users_collection
+from services.cookie import get_user_id_from_request
 from services.music.track_utils import apply_meta_gradients
+from services.token import get_token
 
 router = APIRouter(tags=["user"])
 
@@ -26,9 +28,7 @@ def get_me(request: Request):
             sp_user = sp.current_user()
 
             display_name = sp_user["display_name"]
-            profile_image = (
-                sp_user["images"][0]["url"] if sp_user.get("images") else None
-            )
+            profile_image = sp_user["images"][0]["url"] if sp_user.get("images") else None
 
             new_user = {
                 "user_id": user_id,
@@ -37,16 +37,12 @@ def get_me(request: Request):
                 "theme": "default",
             }
 
-            users_collection.update_one(
-                {"user_id": user_id}, {"$set": new_user}, upsert=True
-            )
+            users_collection.update_one({"user_id": user_id}, {"$set": new_user}, upsert=True)
             return new_user
 
         except Exception as e:
             print(f"⚠️ Failed to auto-register user {user_id}: {e}")
-            raise HTTPException(
-                status_code=404, detail="User not found and cannot be registered"
-            )
+            raise HTTPException(status_code=404, detail="User not found and cannot be registered")
 
     return {
         "user_id": user["user_id"],
@@ -58,11 +54,7 @@ def get_me(request: Request):
 
 @router.get("/users")
 def get_users():
-    return list(
-        users_collection.find(
-            {}, {"_id": 0, "user_id": 1, "display_name": 1, "email": 1}
-        )
-    )
+    return list(users_collection.find({}, {"_id": 0, "user_id": 1, "display_name": 1, "email": 1}))
 
 
 @router.post("/register")
@@ -86,9 +78,7 @@ def register_user(data: dict = Body(...)):
                 {
                     "id": pl["id"],
                     "name": playlist["name"],
-                    "image": (
-                        playlist["images"][0]["url"] if playlist["images"] else None
-                    ),
+                    "image": (playlist["images"][0]["url"] if playlist["images"] else None),
                     "tracks": playlist["tracks"]["total"],
                     "external_url": playlist["external_urls"]["spotify"],
                 }
@@ -113,7 +103,6 @@ def register_user(data: dict = Body(...)):
 
     # Optional: trigger last_played and genre analysis
     try:
-        from services.music.wizard import genre_highest
         from api.genres import get_genres
 
         playback = sp.current_playback()
@@ -161,6 +150,7 @@ def delete_user(request: Request, user_id: str = Query(...)):
     response.delete_cookie("sinatra_user_id", path="/")
     return response
 
+
 @router.get("/session")
 def get_session(request: Request):
     """Return combined user profile and dashboard data."""
@@ -174,9 +164,7 @@ def get_session(request: Request):
             sp_user = sp.current_user()
 
             display_name = sp_user["display_name"]
-            profile_image = (
-                sp_user["images"][0]["url"] if sp_user.get("images") else None
-            )
+            profile_image = sp_user["images"][0]["url"] if sp_user.get("images") else None
 
             new_user = {
                 "user_id": user_id,
@@ -185,24 +173,16 @@ def get_session(request: Request):
                 "theme": "default",
             }
 
-            users_collection.update_one(
-                {"user_id": user_id},
-                {"$set": new_user},
-                upsert=True
-            )
+            users_collection.update_one({"user_id": user_id}, {"$set": new_user}, upsert=True)
             user = new_user
         except Exception as e:
             print(f"⚠️ Failed to auto register user {user_id}: {e}")
-            raise HTTPException(
-                status_code=404, detail="User not found and cannot be registered."
-            )
-    
+            raise HTTPException(status_code=404, detail="User not found and cannot be registered.")
+
     playlists_data = user.get("playlists", {})
     all_playlists = playlists_data.get("all", [])
     featured_ids = playlists_data.get("featured", [])
-    playlist_lookup = {
-        pl.get('id') or pl.get('playlist_id'): pl for pl in all_playlists
-    }
+    playlist_lookup = {pl.get("id") or pl.get("playlist_id"): pl for pl in all_playlists}
     featured_playlists = [
         playlist_lookup.get(pid) for pid in featured_ids if pid in playlist_lookup
     ]

@@ -1,6 +1,6 @@
 # models/playlists.py
+
 from pydantic import BaseModel
-from typing import List
 
 
 class PlaylistSummary(BaseModel):
@@ -20,9 +20,9 @@ class PlaylistID(BaseModel):
 
 class SaveAllPlaylistsRequest(BaseModel):
     user_id: str
-    playlists: List[PlaylistToSave]
+    playlists: list[PlaylistToSave]
 
 
 class FeaturedPlaylistsUpdateRequest(BaseModel):
     user_id: str
-    playlist_ids: List[str]
+    playlist_ids: list[str]

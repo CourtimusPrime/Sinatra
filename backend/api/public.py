@@ -1,9 +1,10 @@
 # api/public.py
-from fastapi import APIRouter, HTTPException, Query
-from db.mongo import users_collection
 import spotipy
-from services.token import get_token_by_user_id
+from fastapi import APIRouter, HTTPException, Query
+
+from db.mongo import users_collection
 from services.spotify import build_track_data
+from services.token import get_token_by_user_id
 
 router = APIRouter(tags=["public"])
 
@@ -29,18 +30,12 @@ def _build_profile_response(user_id: str):
     all_playlists = playlists_data.get("all", [])
     featured_ids = playlists_data.get("featured", [])
 
-    playlist_lookup = {
-        pl.get("id") or pl.get("playlist_id"): pl for pl in all_playlists
-    }
+    playlist_lookup = {pl.get("id") or pl.get("playlist_id"): pl for pl in all_playlists}
     featured_playlists = [
         playlist_lookup.get(pid) for pid in featured_ids if pid in playlist_lookup
     ]
 
-    genres_data = (
-        doc.get("genre_analysis")
-        or doc.get("genres_analysis")
-        or doc.get("genres")
-    )
+    genres_data = doc.get("genre_analysis") or doc.get("genres_analysis") or doc.get("genres")
     last_played = doc.get("last_played_track", {})
 
     return {
@@ -108,13 +103,8 @@ def get_public_recently_played(user_id: str, limit: int = 1):
         track = recent["items"][0]["track"]
         track_data = build_track_data(track, sp)
 
-        existing = users_collection.find_one(
-            {"user_id": user_id}, {"last_played_track": 1}
-        )
-        if (
-            existing
-            and existing.get("last_played_track", {}).get("id") == track_data["id"]
-        ):
+        existing = users_collection.find_one({"user_id": user_id}, {"last_played_track": 1})
+        if existing and existing.get("last_played_track", {}).get("id") == track_data["id"]:
             print("🟡 Track already stored, skipping update.")
             return {"status": "unchanged", "track": track_data}
 
@@ -125,9 +115,7 @@ def get_public_recently_played(user_id: str, limit: int = 1):
         return {"track": track_data}
     except Exception as e:
         print(f"⚠️ Public recently played error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to fetch recently played track"
-        )
+        raise HTTPException(status_code=500, detail="Failed to fetch recently played track")
 
 
 @router.post("/public-update-playing/{user_id}")
@@ -143,13 +131,8 @@ def public_update_playing(user_id: str):
 
         track_data = build_track_data(current["item"], sp)
 
-        existing = users_collection.find_one(
-            {"user_id": user_id}, {"last_played_track": 1}
-        )
-        if (
-            existing
-            and existing.get("last_played_track", {}).get("id") == track_data["id"]
-        ):
+        existing = users_collection.find_one({"user_id": user_id}, {"last_played_track": 1})
+        if existing and existing.get("last_played_track", {}).get("id") == track_data["id"]:
             print("🟡 Track already stored, skipping update.")
             return {"status": "unchanged", "track": track_data}
 
@@ -160,6 +143,4 @@ def public_update_playing(user_id: str):
         return {"status": "updated", "track": track_data}
     except Exception as e:
         print(f"⚠️ Public update playing error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to update last played track."
-        )
+        raise HTTPException(status_code=500, detail="Failed to update last played track.")
