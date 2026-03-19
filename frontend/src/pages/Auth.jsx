@@ -1,21 +1,15 @@
 // src/pages/Auth.jsx
-import { useEffect, useState } from 'react';
+// Legacy route — Auth.js handles callbacks server-side now.
+// This page just redirects in case of stale bookmarks/links.
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
-import { apiGet } from '../utils/api';
 
 function Auth() {
-  return (
-    <div className="text-center mt-10 text-sm text-gray-600">
-      Logging into Spotify...
-      <br />
-      If you're not redirected,{' '}
-      <a href="/" className="underline text-blue-600">
-        click here
-      </a>
-      .
-    </div>
-  );
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate('/home', { replace: true });
+  }, [navigate]);
+  return null;
 }
 
 export default Auth;

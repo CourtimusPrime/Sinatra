@@ -5,8 +5,6 @@ import compression from 'vite-plugin-compression';
 import path from 'path';
 
 const API_PROXY_PATHS = [
-  '/callback',
-  '/login',
   '/me',
   '/genres',
   '/impersonate',
@@ -23,7 +21,6 @@ const API_PROXY_PATHS = [
   '/complete-onboarding',
   '/playback',
   '/delete-user',
-  '/refresh-session',
   '/public-update-playing',
   '/public-played',
   '/ai-genres',
@@ -40,7 +37,6 @@ const API_PROXY_PATHS = [
   '/add-playlists',
   '/delete-playlists',
   '/update-featured',
-  '/refresh_token',
   '/top-tracks',
   '/top-subgenre',
   '/analyze-genres',
@@ -56,6 +52,7 @@ const API_PROXY_PATHS = [
 ];
 
 const BACKEND_URL = 'http://localhost:8000';
+const AUTH_URL = 'http://localhost:3001';
 
 export default defineConfig({
   plugins: [
@@ -74,9 +71,12 @@ export default defineConfig({
   publicDir: 'public',
   base: '/',
   server: {
-    proxy: Object.fromEntries(
-      API_PROXY_PATHS.map((p) => [p, BACKEND_URL])
-    ),
+    proxy: {
+      '/api/auth': AUTH_URL,
+      ...Object.fromEntries(
+        API_PROXY_PATHS.map((p) => [p, BACKEND_URL])
+      ),
+    },
   },
   build: {
     outDir: 'dist',

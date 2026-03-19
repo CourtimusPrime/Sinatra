@@ -1,50 +1,27 @@
 // src/pages/Landing.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import Spotify from '../assets/spotify.svg';
 import Loader from '../components/Loader';
-import { getUserCookie } from '../utils/cookie';
-import { apiLogout } from '../utils/api';
+import { signIn } from '../lib/auth-client';
 
 function Landing() {
   const navigate = useNavigate();
   const { user, loading } = useUser();
-  const [clearing, setClearing] = useState(false);
-  const hasCookie = getUserCookie();
 
   useEffect(() => {
     if (!loading && user) {
       navigate('/home');
-      return;
     }
+  }, [loading, user, navigate]);
 
-    if (!loading && !user && hasCookie && !clearing) {
-      setClearing(true);
-      apiLogout()
-        .catch((err) => console.error('Failed to clear cookie:', err))
-        .finally(() => setClearing(false));
-    }
-  }, [loading, user, hasCookie, clearing, navigate]);
-
-  if (loading || hasCookie || clearing) {
+  if (loading) {
     return <Loader />;
   }
 
   const handleLogin = () => {
-    console.log('🧪 VITE_PRO_CALLBACK:', import.meta.env.VITE_PRO_CALLBACK);
-    console.log('🧪 VITE_DEV_CALLBACK:', import.meta.env.VITE_DEV_CALLBACK);
-    const state = crypto.randomUUID();
-    document.cookie = `spotify_state=${state}; path=/; SameSite=None; Secure`;
-
-    const isLocal = window.location.hostname === 'localhost';
-    const redirectUri =
-      import.meta.env.MODE === 'development'
-        ? import.meta.env.VITE_DEV_CALLBACK
-        : import.meta.env.VITE_PRO_CALLBACK;
-
-    const loginUrl = `${import.meta.env.VITE_API_BASE_URL}/login?state=${state}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-    window.location.href = loginUrl;
+    signIn('spotify', { callbackUrl: '/home' });
   };
 
   return (

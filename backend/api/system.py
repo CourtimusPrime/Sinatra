@@ -1,27 +1,20 @@
 # api/system.py
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 import requests
 from fastapi import APIRouter
 from fastapi.responses import PlainTextResponse
-from pymongo.errors import ConnectionFailure
 
-from db.mongo import get_mongo_client
+from db.pg import check_connection
 
 router = APIRouter(tags=["system"])
 
 
 @router.get("/status")
 def get_system_status():
-    client = get_mongo_client()
-
-    # MongoDB check
-    try:
-        client.admin.command("ping")
-        mongo_status = "online"
-    except ConnectionFailure:
-        mongo_status = "offline"
+    # PostgreSQL check
+    pg_status = "online" if check_connection() else "offline"
 
     # Spotify API check
     try:
@@ -40,10 +33,10 @@ def get_system_status():
 
     return {
         "backend": "online",
-        "mongo": mongo_status,
+        "postgres": pg_status,
         "spotify": spotify_status,
         "vercel_frontend": vercel_status,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

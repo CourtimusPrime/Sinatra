@@ -4,7 +4,7 @@ if (!BASE_URL) {
   console.error('❌ Missing VITE_API_BASE_URL');
 }
 
-export async function apiGet(path, options = {}, retries = 3) {
+export async function apiGet(path, options = {}) {
   try {
     const res = await fetch(`${BASE_URL}${path}`, {
       method: 'GET',
@@ -18,7 +18,7 @@ export async function apiGet(path, options = {}, retries = 3) {
 
     return text ? JSON.parse(text) : null;
   } catch (err) {
-    console.error(`Playback error: ${err}`);
+    console.error(`API GET error: ${err}`);
     throw err;
   }
 }

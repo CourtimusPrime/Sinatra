@@ -1,8 +1,8 @@
 // src/context/UserContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'; // ✅ FIXED
+import { useLocation } from 'react-router-dom';
 import { apiGet } from '../utils/api';
-import { getUserCookie } from '../utils/cookie';
+import { getSession } from '../lib/auth-client';
 
 const UserContext = createContext();
 
@@ -13,9 +13,18 @@ export function UserProvider({ children }) {
 
   async function login() {
     try {
+      const authSession = await getSession();
+      if (!authSession) {
+        setLoading(false);
+        return;
+      }
+
+      // Set cookie for backward compatibility with Python backend
+      document.cookie = `sinatra_user_id=${authSession.user.id}; path=/; max-age=2592000; SameSite=Lax`;
+
+      // Fetch full user data from backend
       const session = await apiGet('/session');
       setUser(session);
-      console.log('✅ Authenticated as:', session.user_id);
     } catch (err) {
       console.error('Login failed:', err);
     } finally {
@@ -24,7 +33,7 @@ export function UserProvider({ children }) {
   }
 
   useEffect(() => {
-    // Public page — no need to fetch /me or /dashboard
+    // Public page — no need to fetch session
     if (location.pathname.startsWith('/u/')) {
       setLoading(false);
     } else {

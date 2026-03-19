@@ -1,23 +1,16 @@
 # services/token.py
 from fastapi import HTTPException, Request
 
-from db.mongo import users_collection
+from db import queries as q
 from services.cookie import get_user_id_from_request
 from services.spotify_auth import get_spotify_oauth
 
 
-def get_token(request: Request) -> str:
-    user_id = get_user_id_from_request(request)
-
-    user = users_collection.find_one({"user_id": user_id})
-    if not user:
+def _resolve_token(user_id: str) -> str:
+    """Core token resolution: fetch, refresh if expired, return access token."""
+    token_info = q.get_tokens(user_id)
+    if not token_info:
         raise HTTPException(status_code=404, detail="User not found in database")
-
-    token_info = {
-        "access_token": user.get("access_token"),
-        "refresh_token": user.get("refresh_token"),
-        "expires_at": user.get("expires_at"),
-    }
 
     if not all(token_info.values()):
         raise HTTPException(status_code=400, detail="User token info incomplete")
@@ -25,55 +18,27 @@ def get_token(request: Request) -> str:
     sp_oauth = get_spotify_oauth()
 
     if sp_oauth.is_token_expired(token_info):
-        refreshed = sp_oauth.refresh_access_token(user["refresh_token"])
-        users_collection.update_one(
-            {"user_id": user_id},
-            {
-                "$set": {
-                    "access_token": refreshed["access_token"],
-                    "refresh_token": refreshed["refresh_token"],
-                    "expires_at": refreshed["expires_at"],
-                }
-            },
+        refreshed = sp_oauth.refresh_access_token(token_info["refresh_token"])
+        q.upsert_tokens(
+            user_id,
+            refreshed["access_token"],
+            refreshed["refresh_token"],
+            refreshed["expires_at"],
         )
         return refreshed["access_token"]
 
     return token_info["access_token"]
 
 
-def refresh_user_token(user_id: str) -> dict:
-    _ = get_token(user_id)
-    return {"status": "ok"}
+def get_token(request: Request) -> str:
+    user_id = get_user_id_from_request(request)
+    return _resolve_token(user_id)
 
 
 def get_token_by_user_id(user_id: str) -> str:
-    user = users_collection.find_one({"user_id": user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    return _resolve_token(user_id)
 
-    token_info = {
-        "access_token": user.get("access_token"),
-        "refresh_token": user.get("refresh_token"),
-        "expires_at": user.get("expires_at"),
-    }
 
-    if not all(token_info.values()):
-        raise HTTPException(status_code=400, detail="Token info incomplete")
-
-    sp_oauth = get_spotify_oauth()
-
-    if sp_oauth.is_token_expired(token_info):
-        refreshed = sp_oauth.refresh_access_token(user["refresh_token"])
-        users_collection.update_one(
-            {"user_id": user_id},
-            {
-                "$set": {
-                    "access_token": refreshed["access_token"],
-                    "refresh_token": refreshed["refresh_token"],
-                    "expires_at": refreshed["expires_at"],
-                }
-            },
-        )
-        return refreshed["access_token"]
-
-    return token_info["access_token"]
+def refresh_user_token(user_id: str) -> dict:
+    _resolve_token(user_id)
+    return {"status": "ok"}

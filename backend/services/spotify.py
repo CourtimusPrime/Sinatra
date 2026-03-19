@@ -43,6 +43,7 @@ def build_track_data(track, sp):
         "id": track["id"],
         "name": track["name"],
         "artist": artist["name"],
+        "artist_id": artist["id"],
         "album": track["album"]["name"],
         "external_url": track["external_urls"]["spotify"],
         "album_art_url": (

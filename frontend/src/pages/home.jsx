@@ -5,7 +5,7 @@ import { useUser } from '../context/UserContext';
 import { apiGet, apiDelete, apiPost } from '../utils/api';
 import { Menu, Share } from 'lucide-react';
 import { motion } from '@motionone/react';
-import { apiLogout } from '../utils/api';
+import { signOut } from '../lib/auth-client';
 
 import UserHeader from '../components/UserHeader';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
@@ -53,6 +53,11 @@ function Home() {
 
     if (!user) {
       navigate('/');
+      return;
+    }
+
+    if (user.registered === false) {
+      navigate('/onboard');
       return;
     }
 
@@ -111,24 +116,10 @@ function Home() {
     }
   }
 
-  async function refreshSession() {
-    try {
-      await apiGet(`/refresh-session`);
-    } catch {
-      localStorage.clear();
-      window.location.href = '/';
-    }
-  }
-
-  async function logout() {
-    try {
-      await apiLogout(); // ✅ clears the cookie from backend
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
-
-    localStorage.clear(); // 🧹 clear any cached frontend data
-    window.location.href = '/'; // 🔁 hard reset to landing
+  function logout() {
+    localStorage.clear();
+    document.cookie = 'sinatra_user_id=; path=/; max-age=0';
+    signOut({ callbackUrl: '/' });
   }
 
   async function deleteAccount() {

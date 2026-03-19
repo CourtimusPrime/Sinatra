@@ -1,10 +1,13 @@
 # api/dashboard.py
+import logging
+
 from fastapi import APIRouter, HTTPException, Request
 
-from api.genres import get_genres
-from db.mongo import users_collection
+from db import queries as q
 from services.cookie import get_user_id_from_request
 from services.music.track_utils import apply_meta_gradients
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["dashboard"])
 
@@ -12,26 +15,15 @@ router = APIRouter(tags=["dashboard"])
 @router.get("/dashboard")
 def get_dashboard(request: Request):
     user_id = get_user_id_from_request(request)
-    print(f"🍪 /dashboard cookie received: sinatra_user_id = {user_id}")
-
-    doc = users_collection.find_one({"user_id": user_id})
-    if not doc:
-        print(f"❌ /dashboard: user not found in DB for user_id = {user_id}")
+    user = q.get_user(user_id)
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    playlists_data = doc.get("playlists", {})
-    all_playlists = playlists_data.get("all", [])
-    featured_ids = playlists_data.get("featured", [])
+    all_playlists = q.get_saved_playlists(user_id)
+    featured_playlists = q.get_featured_playlists(user_id)
 
-    # Create a lookup for faster matching
-    playlist_lookup = {pl.get("id") or pl.get("playlist_id"): pl for pl in all_playlists}
-    featured_playlists = [
-        playlist_lookup.get(pid) for pid in featured_ids if pid in playlist_lookup
-    ]
-
-    print(f"✅ /dashboard success for user_id = {user_id}")
-    genres_data = get_genres(request)
-    last_played = apply_meta_gradients(doc.get("last_played_track", {}))
+    genres_data = q.get_genre_analysis(user_id)
+    last_played = apply_meta_gradients(q.get_last_played(user_id) or {})
 
     return {
         "playlists": {

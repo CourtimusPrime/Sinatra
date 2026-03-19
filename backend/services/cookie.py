@@ -6,7 +6,9 @@ import os
 
 from fastapi import HTTPException, Request
 
-SECRET = os.getenv("COOKIE_SECRET", "dev-secret")
+SECRET = os.getenv("COOKIE_SECRET")
+if not SECRET:
+    raise RuntimeError("COOKIE_SECRET environment variable must be set")
 
 
 def _sign(value: str) -> str:

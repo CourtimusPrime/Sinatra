@@ -42,6 +42,6 @@ def get_vercel_status():
             "logs": logs,
         }
 
-    except Exception as e:
+    except Exception:
         logging.exception("❌ Error fetching Vercel status")
-        return {"vercel": "error", "detail": str(e)}
+        return {"vercel": "error", "detail": "Failed to fetch deployment status"}

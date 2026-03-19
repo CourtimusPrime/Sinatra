@@ -1,17 +1,18 @@
 # api/genres.py
 import json
-import traceback
-from datetime import UTC, datetime
+import logging
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 
-from db.mongo import users_collection
+from db import queries as q
 from services.cookie import get_user_id_from_request
 from services.music import wizard
 from services.music.meta_gradients import gradients
 from services.music.wizard import get_gradient_for_genre
 from services.token import get_token, get_token_by_user_id
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["genres"])
 
@@ -24,9 +25,9 @@ def get_genres(request: Request, refresh: bool = False):
     try:
         access_token = get_token(request)
         return analyze_user_genres(user_id, access_token)
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Genre analysis failed: {str(e)}")
+    except Exception:
+        logger.exception("Genre analysis failed")
+        raise HTTPException(status_code=500, detail="Genre analysis failed")
 
 
 @router.post("/refresh_genres")
@@ -35,17 +36,14 @@ def refresh_genre_analysis(payload: dict):
     if not user_id:
         raise HTTPException(status_code=400, detail="Missing user_id")
 
-    users_collection.update_one(
-        {"user_id": user_id},
-        {"$unset": {"genre_analysis": "", "genre_last_updated": ""}},
-    )
+    q.clear_genre_analysis(user_id)
 
     try:
         access_token = get_token_by_user_id(user_id)
         return analyze_user_genres(user_id, access_token)
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
+    except Exception:
+        logger.exception("Genre refresh failed")
+        raise HTTPException(status_code=500, detail="Genre refresh failed")
 
 
 @router.get("/meta-gradients")
@@ -65,14 +63,14 @@ def analyze_user_genres(user_id: str, access_token: str):
             batch = sp.current_user_top_artists(limit=50, offset=offset, time_range="short_term")
             top_artists.extend(batch.get("items", []))
         except Exception as e:
-            print(f"⚠️ Failed to fetch top artists at offset {offset}: {e}")
+            logger.warning("Failed to fetch top artists at offset %d: %s", offset, e)
 
     # Extract genres
     flat_genres = []
     for artist in top_artists:
         flat_genres.extend([g.strip().lower() for g in artist.get("genres", [])])
 
-    print("🎯 Combined raw genres from top 200 artists:", flat_genres[:20])
+    logger.debug("Combined %d raw genres from top artists", len(flat_genres))
 
     raw_highest = wizard.genre_highest(flat_genres)
     sub_genres_raw = wizard.genre_frequency(flat_genres)
@@ -110,25 +108,21 @@ def analyze_user_genres(user_id: str, access_token: str):
     )
     top_meta = genre_map.get(top_sub.lower(), "other") if top_sub else None
 
-    result = {
-        "sub_genres": dict(sorted(sub_genres.items(), key=lambda x: -x[1]["portion"])[:10]),
-        "meta_genres": dict(sorted(meta_genres.items(), key=lambda x: -x[1]["portion"])[:10]),
-        "top_subgenre": {
-            "sub_genre": top_sub,
-            "parent_genre": top_meta,
-            "gradient": get_gradient_for_genre(top_meta),
-        },
+    # Trim to top 10
+    sub_genres = dict(sorted(sub_genres.items(), key=lambda x: -x[1]["portion"])[:10])
+    meta_genres = dict(sorted(meta_genres.items(), key=lambda x: -x[1]["portion"])[:10])
+
+    top_subgenre = {
+        "sub_genre": top_sub,
+        "parent_genre": top_meta,
+        "gradient": get_gradient_for_genre(top_meta),
     }
 
-    users_collection.update_one(
-        {"user_id": user_id},
-        {
-            "$set": {
-                "genre_analysis": result,
-                "genre_last_updated": datetime.now(UTC),
-            }
-        },
-        upsert=True,
-    )
+    # Persist to PostgreSQL
+    q.save_genre_analysis(user_id, sub_genres, meta_genres, top_subgenre)
 
-    return result
+    return {
+        "sub_genres": sub_genres,
+        "meta_genres": meta_genres,
+        "top_subgenre": top_subgenre,
+    }

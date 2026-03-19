@@ -1,6 +1,7 @@
 # api/auth.py
 import base64
 import json
+import logging
 import os
 
 import spotipy
@@ -8,12 +9,14 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from spotipy.exceptions import SpotifyException
 
-from db.mongo import users_collection
+from db import queries as q
 from services.cookie import decode, encode
 from services.spotify_auth import get_spotify_oauth
 from services.token import refresh_user_token
 
 router = APIRouter(tags=["auth"])
+
+logger = logging.getLogger(__name__)
 
 NODE_ENV = os.getenv("NODE_ENV", "development").lower()
 IS_DEV = NODE_ENV == "development"
@@ -21,6 +24,8 @@ IS_DEV = NODE_ENV == "development"
 DEV_BASE_URL = os.getenv("DEV_BASE_URL", "http://localhost:5173")
 PRO_BASE_URL = os.getenv("PRO_BASE_URL", "https://sinatra.live")
 CALLBACK_URL = os.getenv("DEV_CALLBACK") if IS_DEV else os.getenv("PRO_CALLBACK")
+
+ALLOWED_REDIRECT_ORIGINS = {DEV_BASE_URL, PRO_BASE_URL}
 
 
 def safe_b64decode(data: str):
@@ -30,22 +35,15 @@ def safe_b64decode(data: str):
 
 @router.get("/login")
 async def login():
-    # Redirect URI for frontend to land on after auth finishes
     frontend_redirect_uri = PRO_BASE_URL + "/home" if not IS_DEV else DEV_BASE_URL + "/home"
 
-    # Encode that into state so /callback knows where to send user
     state_payload = json.dumps({"redirect_uri": frontend_redirect_uri})
     encoded_state = base64.urlsafe_b64encode(state_payload.encode()).decode()
 
-    # Use real, registered backend redirect URI for Spotify
     sp_oauth = get_spotify_oauth(CALLBACK_URL)
     auth_url = sp_oauth.get_authorize_url(state=encoded_state)
 
-    print("🔐 Starting Spotify auth with:")
-    print("   CALLBACK_URL =", CALLBACK_URL)
-    print("   STATE (decoded) =", state_payload)
-    print("   AUTH_URL =", auth_url)
-
+    logger.debug("Starting Spotify auth flow")
     return RedirectResponse(auth_url)
 
 
@@ -60,10 +58,11 @@ async def callback(request: Request):
     try:
         decoded_state = safe_b64decode(state)
         redirect_uri = json.loads(decoded_state)["redirect_uri"]
-        print(f"✅ Extracted redirect_uri from state: {redirect_uri}")
-    except Exception as e:
-        print(f"❌ Failed to decode state: {e}")
-        raise HTTPException(status_code=400, detail=f"State decode error: {e}")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
+
+    if not any(redirect_uri.startswith(origin) for origin in ALLOWED_REDIRECT_ORIGINS):
+        raise HTTPException(status_code=400, detail="Invalid redirect URI")
 
     try:
         sp_oauth = get_spotify_oauth(CALLBACK_URL)
@@ -72,31 +71,31 @@ async def callback(request: Request):
         profile = sp.current_user()
         user_id = profile.get("id")
     except SpotifyException as e:
-        print(f"🙅‍♂️ Token exchange or user fetch failed: {e}")
+        logger.warning("Token exchange or user fetch failed: %s", e)
         if e.http_status == 403:
             raise HTTPException(
                 status_code=403,
                 detail="Spotify forbids access, the user may not be registered in dashboard",
             )
-        raise HTTPException(status_code=500, detail=f"☎️ Internal callback error: {e}")
+        raise HTTPException(status_code=500, detail="Authentication failed")
     except Exception as e:
-        print(f"❌ Token exchange or user fetch failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal callback error: {e}")
+        logger.error("Unexpected callback error: %s", e)
+        raise HTTPException(status_code=500, detail="Authentication failed")
 
     if not user_id:
         raise HTTPException(status_code=400, detail="Spotify user ID missing.")
 
-    # Update or create user record
-    users_collection.update_one(
-        {"user_id": user_id},
-        {
-            "$set": {
-                "access_token": token_info["access_token"],
-                "refresh_token": token_info["refresh_token"],
-                "expires_at": token_info["expires_at"],
-            }
-        },
-        upsert=True,
+    # Upsert user profile (needed before tokens due to FK)
+    display_name = profile.get("display_name") or user_id
+    profile_image = profile["images"][0]["url"] if profile.get("images") else None
+    q.upsert_user(user_id, display_name, profile_image)
+
+    # Store tokens
+    q.upsert_tokens(
+        user_id,
+        token_info["access_token"],
+        token_info["refresh_token"],
+        token_info["expires_at"],
     )
 
     # Build redirect response with secure, server-set cookie
@@ -114,7 +113,7 @@ async def callback(request: Request):
         max_age=3600 * 24 * 7,
     )
 
-    print(f"🍪 Set sinatra_user_id cookie: {user_id}")
+    logger.debug("Set sinatra_user_id cookie for user %s", user_id)
     return response
 
 
@@ -139,8 +138,8 @@ def logout_user():
     response.delete_cookie(
         key="sinatra_user_id",
         path="/",
-        samesite="None",  # Match what you used in login
-        secure=True,  # Match what you used in login
+        samesite="None" if not IS_DEV else "Lax",
+        secure=not IS_DEV,
     )
     return response
 
@@ -156,26 +155,18 @@ def whoami(request: Request):
         except Exception:
             user_id = None
 
-    print("🔍 /whoami DEBUG:")
-    print("🧁  All cookies received:", dict(all_cookies))
-    print("🆔  sinatra_user_id cookie:", user_id)
-
     if not user_id:
-        print("🚫 No sinatra_user_id cookie found")
         return JSONResponse(
             {"message": "No sinatra_user_id cookie found"},
             status_code=401,
         )
 
-    user = users_collection.find_one({"user_id": user_id})
+    user = q.get_user(user_id)
     if not user:
-        print(f"❌ No user found in DB for user_id: {user_id}")
         return JSONResponse(
-            {"message": f"User ID from cookie: {user_id} not found in DB"},
+            {"message": "User not found"},
             status_code=404,
         )
-
-    print(f"✅ User found: {user.get('display_name')} ({user_id})")
 
     return {
         "message": "User identified via cookie",

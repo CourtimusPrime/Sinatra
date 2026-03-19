@@ -1,0 +1,219 @@
+Project sinatra {
+  database_type: 'PostgreSQL'
+  Note: 'Sinatra — Spotify-powered music identity app'
+}
+
+// ============================================================
+// Artists schema — music catalog: artists, tracks, genres
+// ============================================================
+
+Table artists.meta_genres {
+  meta_genre_id bigint [pk, increment]
+  name text [not null, unique]
+  gradient text [not null, note: 'CSS gradient for UI']
+}
+
+Table artists.genres {
+  genre_id bigint [pk, increment]
+  name text [not null, unique]
+  meta_genre_id bigint [ref: > artists.meta_genres.meta_genre_id]
+
+  Indexes {
+    meta_genre_id
+    (name) [type: gin, note: 'pg_trgm fuzzy search']
+  }
+}
+
+Table artists.profiles {
+  artist_id bigint [pk, increment]
+  spotify_id text [not null, unique]
+  name text [not null]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (name) [type: gin, note: 'pg_trgm fuzzy search']
+  }
+}
+
+Table artists.genre_map {
+  artist_id bigint [not null, ref: > artists.profiles.artist_id]
+  genre_id bigint [not null, ref: > artists.genres.genre_id]
+
+  Indexes {
+    (artist_id, genre_id) [pk]
+    genre_id
+  }
+}
+
+Table artists.tracks {
+  track_id bigint [pk, increment]
+  spotify_id text [not null, unique]
+  name text [not null]
+  album text [not null]
+  album_art_url text
+  external_url text [not null]
+  isrc text
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    isrc [where: 'isrc IS NOT NULL']
+  }
+}
+
+Table artists.track_credits {
+  track_id bigint [not null, ref: > artists.tracks.track_id]
+  artist_id bigint [not null, ref: > artists.profiles.artist_id]
+  position integer [not null, default: 0, note: '0 = primary artist']
+
+  Indexes {
+    (track_id, artist_id) [pk]
+    artist_id
+  }
+}
+
+// ============================================================
+// Playlists schema — playlist metadata and track listings
+// ============================================================
+
+Table playlists.details {
+  playlist_id bigint [pk, increment]
+  spotify_id text [not null, unique]
+  name text [not null]
+  image text
+  track_count integer [not null, default: 0]
+  external_url text [not null]
+  owner_id bigint [ref: > users.profiles.user_id]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    owner_id
+  }
+}
+
+Table playlists.entries {
+  playlist_id bigint [not null, ref: > playlists.details.playlist_id]
+  track_id bigint [not null, ref: > artists.tracks.track_id]
+  position integer [not null, default: 0]
+  added_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (playlist_id, track_id) [pk]
+    track_id
+  }
+}
+
+// ============================================================
+// Users schema — accounts, auth, preferences, computed stats
+// ============================================================
+
+Table users.profiles {
+  user_id bigint [pk, increment]
+  spotify_id text [not null, unique]
+  display_name text [not null]
+  profile_image_url text
+  theme text [not null, default: 'default']
+  registered boolean [not null, default: false]
+  genre_last_updated timestamptz
+  top_genre_id bigint [ref: > artists.genres.genre_id]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table users.tokens {
+  user_id bigint [pk, ref: - users.profiles.user_id]
+  access_token text [not null]
+  refresh_token text [not null]
+  expires_at timestamptz [not null]
+
+  Note: 'Separated from profiles to isolate frequent token-refresh writes'
+}
+
+Table users.saved_playlists {
+  user_id bigint [not null, ref: > users.profiles.user_id]
+  playlist_id bigint [not null, ref: > playlists.details.playlist_id]
+  added_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (user_id, playlist_id) [pk]
+    playlist_id
+  }
+}
+
+Table users.featured_playlists {
+  user_id bigint [not null]
+  playlist_id bigint [not null]
+  position integer [not null, default: 0]
+
+  Indexes {
+    (user_id, playlist_id) [pk]
+  }
+
+  Note: 'Subset of saved_playlists — compound FK ensures playlist must be saved first'
+}
+
+Ref: users.featured_playlists.(user_id, playlist_id) > users.saved_playlists.(user_id, playlist_id)
+
+Table users.playback {
+  user_id bigint [pk, ref: - users.profiles.user_id]
+  track_id bigint [not null, ref: > artists.tracks.track_id]
+  played_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    track_id
+  }
+
+  Note: 'Last played track — 1:1 with users'
+}
+
+Table users.genre_stats {
+  user_id bigint [not null, ref: > users.profiles.user_id]
+  genre_id bigint [not null, ref: > artists.genres.genre_id]
+  portion numeric(5,2) [not null, note: '0.00–100.00']
+  rank integer [not null]
+
+  Indexes {
+    (user_id, genre_id) [pk]
+  }
+
+  Note: 'Computed sub-genre breakdown per user'
+}
+
+Table users.meta_genre_stats {
+  user_id bigint [not null, ref: > users.profiles.user_id]
+  meta_genre_id bigint [not null, ref: > artists.meta_genres.meta_genre_id]
+  portion numeric(5,2) [not null, note: '0.00–100.00']
+  rank integer [not null]
+
+  Indexes {
+    (user_id, meta_genre_id) [pk]
+  }
+
+  Note: 'Computed meta-genre breakdown per user'
+}
+
+// ============================================================
+// Table groups
+// ============================================================
+
+TableGroup artists_catalog {
+  artists.meta_genres
+  artists.genres
+  artists.profiles
+  artists.genre_map
+  artists.tracks
+  artists.track_credits
+}
+
+TableGroup playlist_data {
+  playlists.details
+  playlists.entries
+}
+
+TableGroup user_data {
+  users.profiles
+  users.tokens
+  users.saved_playlists
+  users.featured_playlists
+  users.playback
+  users.genre_stats
+  users.meta_genre_stats
+}

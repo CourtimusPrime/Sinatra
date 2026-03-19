@@ -1,55 +1,61 @@
 # api/admin.py
-from datetime import UTC, datetime
+import os
 
 import spotipy
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Header, HTTPException, Query
 
-from db.mongo import playlists_collection, users_collection
+from db import queries as q
 from services.spotify import get_spotify_client
 
 router = APIRouter(tags=["admin"])
 
+ADMIN_SECRET = os.getenv("ADMIN_SECRET")
+
+
+def _verify_admin(x_admin_secret: str = Header(None)):
+    if not ADMIN_SECRET or x_admin_secret != ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
 
 @router.post("/admin/backfill-playlist-metadata")
-def backfill_playlist_metadata():
-    users = users_collection.find({"playlists.all": {"$exists": True}})
+def backfill_playlist_metadata(x_admin_secret: str = Header(None)):
+    _verify_admin(x_admin_secret)
+    users = q.get_all_users_with_tokens()
     updated = 0
 
     for user in users:
-        access_token = user.get("access_token")
-        if not access_token:
-            continue
+        sp = spotipy.Spotify(auth=user["access_token"])
+        saved = q.get_saved_playlists(user["spotify_id"])
+        enriched = []
 
-        sp = spotipy.Spotify(auth=access_token)
-        updated_playlists = []
-
-        for pl in user.get("playlists.all", []):
+        for pl in saved:
             try:
-                playlist = sp.playlist(pl["playlist_id"])
-                pl["track_count"] = playlist["tracks"]["total"]
-                pl["external_url"] = playlist["external_urls"]["spotify"]
-                updated_playlists.append(pl)
-            except Exception as e:
-                print(f"⚠️ Failed to update playlist {pl['playlist_id']}: {e}")
+                playlist = sp.playlist(pl["id"])
+                enriched.append(
+                    {
+                        "id": pl["id"],
+                        "tracks": playlist["tracks"]["total"],
+                        "external_url": playlist["external_urls"]["spotify"],
+                    }
+                )
+            except Exception:
                 continue
 
-        users_collection.update_one(
-            {"user_id": user["user_id"]},
-            {"$set": {"playlists.all": updated_playlists}},
-        )
-        updated += 1
+        if enriched:
+            q.backfill_playlist_metadata(user["spotify_id"], enriched)
+            updated += 1
 
     return {"status": "ok", "users_updated": updated}
 
 
 @router.post("/admin/sync_playlists")
-def sync_playlists(user_id: str = Query(...)):
+def sync_playlists(user_id: str = Query(...), x_admin_secret: str = Header(None)):
+    _verify_admin(x_admin_secret)
     sp = get_spotify_client(user_id)
 
     all_playlists = []
     offset = 0
     limit = 50
-    total_fetched = 0
 
     user_profile = sp.current_user()
     spotify_user_id = user_profile["id"]
@@ -70,30 +76,17 @@ def sync_playlists(user_id: str = Query(...)):
                     "id": p["id"],
                     "name": p["name"],
                     "tracks": p["tracks"]["total"],
-                    "owner_id": p["owner"]["id"],
                     "image": p["images"][0]["url"] if p["images"] else None,
                     "external_url": p["external_urls"]["spotify"],
                 }
             )
 
         offset += limit
-        total_fetched += len(items)
 
-    playlists_collection.update_one(
-        {"user_id": user_id},
-        {
-            "$set": {
-                "user_id": user_id,
-                "playlists": all_playlists,
-                "last_updated": datetime.now(UTC),
-            }
-        },
-        upsert=True,
-    )
+    saved = q.sync_user_playlists(user_id, all_playlists)
 
     return {
         "status": "ok",
         "user_id": user_id,
-        "total_playlists_fetched": total_fetched,
-        "total_playlists_saved": len(all_playlists),
+        "total_playlists_saved": saved,
     }

@@ -44,6 +44,5 @@ def get_spotify_me(user_id: str = Query(...)):
         access_token = get_token(user_id)
         sp = spotipy.Spotify(auth=access_token)
         return sp.current_user()
-    except SpotifyException as e:
-        print(f"⚠️ Spotify /me error for {user_id}: {e}")
+    except SpotifyException:
         raise HTTPException(status_code=401, detail="Failed to fetch Spotify user profile.")

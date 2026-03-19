@@ -1,14 +1,15 @@
 # api/playlists.py
+import logging
 
 import spotipy
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 
-from db.mongo import playlists_collection, users_collection
-from models.playlists import (
-    FeaturedPlaylistsUpdateRequest,
-)
+from db import queries as q
+from models.playlists import FeaturedPlaylistsUpdateRequest
 from services.cookie import get_user_id_from_request
-from services.token import get_token
+from services.token import get_token, get_token_by_user_id
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["playlists"])
 
@@ -19,7 +20,7 @@ def get_playlists(
     limit: int = Query(50, ge=1, le=50),
     offset: int = Query(0, ge=0),
 ):
-    access_token = get_token(user_id)
+    access_token = get_token_by_user_id(user_id)
     sp = spotipy.Spotify(auth=access_token)
     raw = sp.current_user_playlists(limit=limit, offset=offset)
 
@@ -39,11 +40,8 @@ def get_playlists(
 
 @router.get("/all-playlists")
 def get_all_user_playlists(user_id: str = Query(...)):
-    user = users_collection.find_one({"user_id": user_id}, {"playlists.all": 1})
-    if not user or "playlists.all" not in user:
-        return []
-
-    return user["playlists.all"]
+    playlists = q.get_saved_playlists(user_id)
+    return playlists
 
 
 @router.post("/add-playlists")
@@ -77,19 +75,14 @@ async def add_playlists(
                     "external_url": playlist["external_urls"]["spotify"],
                 }
             )
-        except Exception as e:
-            print(f"⚠️ Failed to fetch metadata for playlist {pl['id']}: {e}")
+        except Exception:
+            logger.warning("Failed to fetch metadata for playlist %s", pl["id"])
 
     if not enriched:
         raise HTTPException(status_code=400, detail="No valid playlists to add")
 
-    result = users_collection.update_one(
-        {"user_id": user_id},
-        {"$addToSet": {"playlists.all": {"$each": enriched}}},
-        upsert=True,
-    )
-
-    return {"status": "added", "modified_count": result.modified_count}
+    count = q.add_saved_playlists(user_id, enriched)
+    return {"status": "added", "modified_count": count}
 
 
 @router.post("/delete-playlists")
@@ -109,14 +102,8 @@ async def delete_playlists(
         raise HTTPException(status_code=400, detail="Invalid playlist data")
 
     playlist_ids = [p["id"] for p in playlists]
-    print(f"🗑️ Deleting playlists {playlist_ids} for user {user_id}")
-
-    result = users_collection.update_one(
-        {"user_id": user_id},
-        {"$pull": {"playlists.all": {"id": {"$in": playlist_ids}}}},
-    )
-
-    return {"status": "deleted", "deleted_count": result.modified_count}
+    count = q.remove_saved_playlists(user_id, playlist_ids)
+    return {"status": "deleted", "deleted_count": count}
 
 
 @router.post("/update-featured")
@@ -124,31 +111,20 @@ def update_featured_playlists(data: FeaturedPlaylistsUpdateRequest = Body(...)):
     user_id = data.user_id
     playlist_ids = data.playlist_ids
 
-    print(f"🔄 Incoming update-featured request for user: {user_id}")
-    print(f"📦 Playlist IDs received: {playlist_ids}")
-
     if not user_id or not isinstance(playlist_ids, list):
         raise HTTPException(status_code=400, detail="Invalid input")
 
-    user = users_collection.find_one({"user_id": user_id})
+    user = q.get_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    all_playlists = user.get("playlists", {}).get("all", [])
-    known_ids = {pl.get("id") for pl in all_playlists}
-
-    normalized_ids = [pid for pid in playlist_ids if pid in known_ids]
-
-    users_collection.update_one(
-        {"user_id": user_id}, {"$set": {"playlists.featured": normalized_ids}}
-    )
-
-    return {"status": "ok", "count": len(normalized_ids)}
+    count = q.update_featured_playlists(user_id, playlist_ids)
+    return {"status": "ok", "count": count}
 
 
 @router.get("/playlist-info")
 def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
-    access_token = get_token(user_id)
+    access_token = get_token_by_user_id(user_id)
     sp = spotipy.Spotify(auth=access_token)
     playlist = sp.playlist(playlist_id)
 
@@ -160,24 +136,22 @@ def get_playlist_info(user_id: str = Query(...), playlist_id: str = Query(...)):
 
 @router.get("/user-playlists")
 def get_user_playlists(user_id: str = Query(...)):
-    doc = playlists_collection.find_one({"user_id": user_id})
-    if not doc:
+    playlists = q.get_synced_playlists(user_id)
+    if not playlists:
         raise HTTPException(status_code=404, detail="No synced playlists found for user.")
 
     return {
-        "user_id": doc["user_id"],
-        "last_updated": doc.get("last_updated"),
-        "playlists": doc.get("playlists", []),
+        "user_id": user_id,
+        "playlists": playlists,
     }
 
 
 @router.get("/synced-playlists/paginated")
 def get_paginated_playlists(user_id: str = Query(...), offset: int = 0, limit: int = 50):
-    doc = playlists_collection.find_one({"user_id": user_id})
-    if not doc:
+    all_playlists = q.get_synced_playlists(user_id)
+    if not all_playlists:
         raise HTTPException(status_code=404, detail="No synced playlists found.")
 
-    all_playlists = doc.get("playlists", [])
     total = len(all_playlists)
     sliced = all_playlists[offset : offset + limit]
 
